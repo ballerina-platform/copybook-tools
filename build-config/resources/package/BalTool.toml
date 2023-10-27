@@ -1,0 +1,5 @@
+[tool]
+id = "copybook"
+
+[[dependency]]
+path = "resources/copybook-cli-@toml.version@.jar"

@@ -15,5 +15,6 @@ pluginManagement {
 rootProject.name = 'copybook-tools'
 include('copybook-cli')
 include('checkstyle')
+include('copybook-tool')
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
