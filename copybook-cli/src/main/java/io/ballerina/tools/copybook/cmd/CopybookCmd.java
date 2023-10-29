@@ -3,7 +3,8 @@ package io.ballerina.tools.copybook.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.tools.copybook.exception.CmdException;
 import io.ballerina.tools.copybook.exception.CodeGenerationException;
-import io.ballerina.tools.copybook.generator.CopybookTypeGenerator;
+import io.ballerina.tools.copybook.generator.CodeGenerator;
+import org.ballerinalang.formatter.core.FormatterException;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -63,7 +64,7 @@ public class CopybookCmd implements BLauncherCmd {
             }
             validateInputFlags();
             executeOperation();
-        } catch (CmdException | CodeGenerationException e) {
+        } catch (CmdException | CodeGenerationException | FormatterException e) {
             outStream.println(e.getMessage());
             exitError(this.exitWhenFinish);
         }
@@ -85,12 +86,12 @@ public class CopybookCmd implements BLauncherCmd {
         }
     }
 
-    private void executeOperation() throws CodeGenerationException, CmdException {
+    private void executeOperation() throws CodeGenerationException, CmdException, FormatterException {
         String filePath = argList.get(0);
         generateType(filePath);
     }
 
-    private void generateType(String filePath) throws CmdException, CodeGenerationException {
+    private void generateType(String filePath) throws CmdException, CodeGenerationException, FormatterException {
         final File copybookFile = new File(filePath);
         if (!copybookFile.exists()) {
             throw new CmdException("MESSAGE_MISSING_BAL_FILE");
@@ -104,7 +105,7 @@ public class CopybookCmd implements BLauncherCmd {
         } catch (IOException e) {
             throw new CmdException(e.toString());
         }
-        CopybookTypeGenerator.generate(copybookFilePath, getTargetOutputPath(), outStream);
+        CodeGenerator.generate(copybookFilePath, getTargetOutputPath(), outStream);
     }
 
     private Path getTargetOutputPath() {
