@@ -8,7 +8,6 @@ import io.ballerina.copybook.parser.schema.SchemaBuilder;
 import io.ballerina.tools.copybook.exception.CodeGenerationException;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
 import java.io.IOException;
@@ -23,7 +22,6 @@ import static io.ballerina.copybook.parser.schema.CopyBookPreprocessor.chopCopyb
 public abstract class CodeGenerator {
 
     protected CodeGenerator() {
-
     }
 
     public static void generate(Path cbFilePath, Path targetOutputPath, PrintStream outStream)
@@ -49,9 +47,7 @@ public abstract class CodeGenerator {
         startRule.accept(visitor);
         Schema schema = visitor.getSchema();
         CopybookTypeGenerator codeGenerator = new CopybookTypeGenerator(schema);
-
-        String generatedSyntaxTree = Formatter.format(codeGenerator.generateSyntaxTree()).toString();
-        String src = Formatter.format(generatedSyntaxTree);
+        String src = codeGenerator.generateSourceCode();
         outStream.println(src);
     }
 }
