@@ -1,16 +1,29 @@
 package io.ballerina.tools.copybook.generator;
 
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.copybook.parser.schema.DataItem;
+import io.ballerina.copybook.parser.schema.GroupItem;
+import io.ballerina.copybook.parser.schema.Node;
 
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyMinutiaeList;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createIdentifierToken;
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createLiteralValueToken;
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createNodeList;
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
+import static io.ballerina.compiler.syntax.tree.NodeFactory.createArrayDimensionNode;
+import static io.ballerina.compiler.syntax.tree.NodeFactory.createArrayTypeDescriptorNode;
+import static io.ballerina.compiler.syntax.tree.NodeFactory.createBasicLiteralNode;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createSimpleNameReferenceNode;
+import static io.ballerina.tools.copybook.generator.CodeGeneratorUtils.extractTypeReferenceName;
 
 public class ReferencedTypeGenerator extends TypeGenerator {
 
-    DataItem fieldSchema;
+    Node fieldSchema;
 
-    public ReferencedTypeGenerator(DataItem fieldSchema) {
+    public ReferencedTypeGenerator(Node fieldSchema) {
 
         this.fieldSchema = fieldSchema;
     }
@@ -19,44 +32,52 @@ public class ReferencedTypeGenerator extends TypeGenerator {
      * Generate TypeDescriptorNode for referenced schemas.
      */
     @Override
-    public TypeDescriptorNode generateTypeDescriptorNode() {
-
-        String extractName = extractTypeReferenceName(fieldSchema);
+    public TypeDescriptorNode generateTypeDescriptorNode(boolean isRecordFieldReference) {
+        String extractName = getTypeReferenceName(fieldSchema, isRecordFieldReference);
         String typeName = CodeGeneratorUtils.getValidName(extractName);
+        if (fieldSchema instanceof GroupItem && fieldSchema.getOccurs() > 0) {
+            BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
+                createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
+                        String.valueOf(fieldSchema.getOccurs()),
+                        createEmptyMinutiaeList(), createEmptyMinutiaeList()));
+            ArrayDimensionNode arrayDimension =
+                    createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
+                            createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
+            TypeDescriptorNode wrappedType = createSimpleNameReferenceNode(createIdentifierToken(typeName));
+            return createArrayTypeDescriptorNode(wrappedType, createNodeList(arrayDimension));
+        } else if (fieldSchema instanceof DataItem && fieldSchema.getOccurs() > 0 && isRecordFieldReference) {
+            BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
+                    createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
+                            String.valueOf(fieldSchema.getOccurs()),
+                            createEmptyMinutiaeList(), createEmptyMinutiaeList()));
+            ArrayDimensionNode arrayDimension =
+                    createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
+                            createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
+            TypeDescriptorNode wrappedType = createSimpleNameReferenceNode(createIdentifierToken(typeName));
+            return createArrayTypeDescriptorNode(wrappedType, createNodeList(arrayDimension));
+        }
         return createSimpleNameReferenceNode(createIdentifierToken(typeName));
     }
 
-    private String extractTypeReferenceName(DataItem dataItem) {
+    private String getTypeReferenceName(Node dataItem, boolean isRecordFieldReference) {
 
-        String typeName = null;
-        if (dataItem.isNumeric()) {
-            // handle numeric types
-            if (dataItem.getFloatingPointLength() > 0) {
-                if (dataItem.isSinged()) {
-                    typeName = "SignedFloat" + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2) +
-                            dataItem.getFloatingPointLength();
+        if (dataItem instanceof DataItem) {
+            if (!isRecordFieldReference) {
+                if (((DataItem) dataItem).isNumeric()) {
+                    if (((DataItem) dataItem).getFloatingPointLength() > 0) {
+                        return "decimal";
+                    }
+                    return "int";
+                } else if (((DataItem) dataItem).getPicture().contains("COMP")) {
+                    return "byte[]";
                 } else {
-                    typeName = "Float" + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2) +
-                            dataItem.getFloatingPointLength();
+                    return "string";
                 }
             } else {
-                if (dataItem.isSinged()) {
-                    typeName = "SignedInteger" + dataItem.getReadLength();
-                } else {
-                    typeName = "Integer" + dataItem.getReadLength();
-                }
+                return extractTypeReferenceName((DataItem) dataItem);
             }
-        } else if (dataItem.getPicture().contains("COMP")) {
-            // TODO: re-write the logic to handle binary values
-            typeName = "IntegerInBinary";
-        } else {
-            // handle alphanumeric types
-            typeName = "AlphaNumeric" + dataItem.getReadLength();
         }
-        if (dataItem.getOccurs() > 0) {
-            typeName = typeName + "Array" + dataItem.getOccurs();
-        }
-        return typeName;
+        return dataItem.getName();
     }
 
 }
