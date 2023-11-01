@@ -7,18 +7,15 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 
-/**
- * Exception type definition for Copybook command related errors.
- */
-public class CmdException extends Exception {
+public class CopybookTypeGenerationException extends Exception {
     private final Diagnostic diagnostic;
 
-    public CmdException(DiagnosticMessages diagnosticMessage, Location location) {
+    public CopybookTypeGenerationException(DiagnosticMessages diagnosticMessage, Location location) {
         super(diagnosticMessage.getDescription());
         this.diagnostic = createDiagnostic(diagnosticMessage, location);
     }
 
-    public CmdException(DiagnosticMessages diagnosticMessage, Location location, String... args) {
+    public CopybookTypeGenerationException(DiagnosticMessages diagnosticMessage, Location location, String... args) {
         super(generateDescription(diagnosticMessage, args));
         this.diagnostic = createDiagnostic(diagnosticMessage, location, args);
     }

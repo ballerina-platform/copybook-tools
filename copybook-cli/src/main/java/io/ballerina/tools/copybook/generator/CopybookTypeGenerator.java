@@ -9,6 +9,8 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -25,11 +27,19 @@ import org.ballerinalang.formatter.core.FormatterException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createIdentifierToken;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createNodeList;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createMetadataNode;
+import static io.ballerina.compiler.syntax.tree.NodeFactory.createSimpleNameReferenceNode;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createTypeDefinitionNode;
+import static io.ballerina.compiler.syntax.tree.NodeFactory.createUnionTypeDescriptorNode;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.OPEN_BRACE_PIPE_TOKEN;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.PIPE_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.QUESTION_MARK_TOKEN;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.RECORD_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.SEMICOLON_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.TYPE_KEYWORD;
 import static io.ballerina.tools.copybook.generator.CodeGeneratorUtils.createImportDeclarationNodes;
@@ -123,12 +133,66 @@ public class CopybookTypeGenerator {
     private void addToTypeDefinitionList(List<TypeDefinitionNode> nodeList,
                                          List<TypeDefinitionNode> typeDefinitionList) {
 
-        for (TypeDefinitionNode node : nodeList) {
-            boolean isExist = typeDefinitionList.stream().anyMatch(typeDefinitionNode ->
-                    typeDefinitionNode.typeName().toString().equals(node.typeName().toString()));
-            if (!isExist) {
-                typeDefinitionList.add(node);
+        List<TypeDefinitionNode> modifiedNodes = new ArrayList<>();
+        if (nodeList.isEmpty()) {
+            return;
+        }
+        for (TypeDefinitionNode node1 : nodeList) {
+            for (TypeDefinitionNode node2 : typeDefinitionList) {
+                if (node1.typeName().toString().equals(node2.typeName().toString())) {
+                    mergeTypeDefinitionNode(node1, node2);
+                } else {
+                    modifiedNodes.add(node1);
+                }
             }
         }
+        typeDefinitionList.addAll(modifiedNodes);
+    }
+
+    private void mergeTypeDefinitionNode(TypeDefinitionNode node1, TypeDefinitionNode node2) {
+
+        TypeDescriptorNode tf = null;
+        io.ballerina.compiler.syntax.tree.Node typeDescriptorNode1 = node1.typeDescriptor();
+        io.ballerina.compiler.syntax.tree.Node typeDescriptorNode2 = node2.typeDescriptor();
+        if (typeDescriptorNode1 instanceof RecordTypeDescriptorNode &&
+                typeDescriptorNode2 instanceof RecordTypeDescriptorNode) {
+            RecordTypeDescriptorNode recordTypeDescriptorNode1 = (RecordTypeDescriptorNode) typeDescriptorNode1;
+            RecordTypeDescriptorNode recordTypeDescriptorNode2 = (RecordTypeDescriptorNode) typeDescriptorNode2;
+            tf = recordTypeDescriptorNode1;
+            List<io.ballerina.compiler.syntax.tree.Node> fields1 = recordTypeDescriptorNode1.fields().stream().toList();
+            List<io.ballerina.compiler.syntax.tree.Node> fields2 = recordTypeDescriptorNode2.fields().stream().toList();
+            List<io.ballerina.compiler.syntax.tree.Node> fields = new ArrayList<>();
+            for (io.ballerina.compiler.syntax.tree.Node field1 : fields1) {
+                for (io.ballerina.compiler.syntax.tree.Node field2 : fields2) {
+                    if (field1 instanceof RecordFieldNode && field2 instanceof RecordFieldNode) {
+                        RecordFieldNode recField1 = (RecordFieldNode) field1;
+                        RecordFieldNode recField2 = (RecordFieldNode) field2;
+                        if (recField1.fieldName().toString().equals(recField2.fieldName().toString()) &&
+                                !recField1.typeName().toString().equals(recField2.typeName().toString())) {
+                            getModifiedRecordFieldNode((RecordFieldNode) field1, (RecordFieldNode) field2);
+                        } else if (!recField1.fieldName().toString().equals(recField2.fieldName().toString())) {
+                            fields.add(field1);
+                        }
+                    }
+                }
+            }
+            fields.addAll(fields2);
+            NodeList nl =
+                    AbstractNodeFactory.createNodeList(fields.toArray(new io.ballerina.compiler.syntax.tree.Node[0]));
+            tf = recordTypeDescriptorNode2.modify(createToken(RECORD_KEYWORD), createToken(OPEN_BRACE_PIPE_TOKEN), nl,
+                    null, createToken(CLOSE_BRACE_PIPE_TOKEN));
+        }
+        node2.modify(null, createToken(PUBLIC_KEYWORD), node1.typeKeyword(), node1.typeName(), tf,
+                node1.semicolonToken());
+    }
+
+    private void getModifiedRecordFieldNode(RecordFieldNode node1, RecordFieldNode node2) {
+
+        TypeDescriptorNode left = createSimpleNameReferenceNode(createIdentifierToken(node1.typeName().toString()));
+        TypeDescriptorNode right =
+                createSimpleNameReferenceNode(createIdentifierToken(node2.typeName().toString()));
+        TypeDescriptorNode newType = createUnionTypeDescriptorNode(left, createToken(PIPE_TOKEN), right);
+        node2.modify(null, null, newType, node2.fieldName(), createToken(QUESTION_MARK_TOKEN),
+                node2.semicolonToken());
     }
 }

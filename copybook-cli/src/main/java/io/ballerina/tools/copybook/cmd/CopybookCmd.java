@@ -1,8 +1,10 @@
 package io.ballerina.tools.copybook.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.tools.copybook.diagnostic.Constants;
+import io.ballerina.tools.copybook.diagnostic.DiagnosticMessages;
 import io.ballerina.tools.copybook.exception.CmdException;
-import io.ballerina.tools.copybook.exception.CodeGenerationException;
+import io.ballerina.tools.copybook.exception.CopybookTypeGenerationException;
 import io.ballerina.tools.copybook.generator.CodeGenerator;
 import org.ballerinalang.formatter.core.FormatterException;
 import picocli.CommandLine;
@@ -14,11 +16,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.COBOL_EXTENSION;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.COPYBOOK_EXTENSION;
+
 @CommandLine.Command(
         name = "copybook",
         description = "Generates Ballerina record types for copybooks definition"
 )
 public class CopybookCmd implements BLauncherCmd {
+
     private static final String CMD_NAME = "copybook";
     private final PrintStream outStream;
     private final boolean exitWhenFinish;
@@ -39,16 +45,19 @@ public class CopybookCmd implements BLauncherCmd {
     private List<String> argList;
 
     public CopybookCmd() {
+
         this(System.err, Paths.get(System.getProperty("user.dir")), true);
     }
 
     public CopybookCmd(PrintStream outStream, Path executionDir, boolean exitWhenFinish) {
+
         this.outStream = outStream;
         this.executionPath = executionDir;
         this.exitWhenFinish = exitWhenFinish;
     }
 
     private static void exitError(boolean exit) {
+
         if (exit) {
             Runtime.getRuntime().exit(1);
         }
@@ -56,6 +65,7 @@ public class CopybookCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
+
         try {
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -64,16 +74,17 @@ public class CopybookCmd implements BLauncherCmd {
             }
             validateInputFlags();
             executeOperation();
-        } catch (CmdException | CodeGenerationException | FormatterException e) {
+        } catch (CmdException | CopybookTypeGenerationException | FormatterException e) {
             outStream.println(e.getMessage());
             exitError(this.exitWhenFinish);
         }
     }
 
     private void validateInputFlags() throws CmdException {
+
         if (inputPathFlag) {
             if (argList == null) {
-                throw new CmdException("MESSAGE_FOR_MISSING_INPUT_ARGUMENT");
+                throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_100, null);
             }
         } else {
             getCommandUsageInfo();
@@ -82,33 +93,40 @@ public class CopybookCmd implements BLauncherCmd {
 
         String filePath = argList.get(0);
         if (!validInputFileExtension(filePath)) {
-            throw new CmdException("MESSAGE_FOR_INVALID_FILE_EXTENSION");
+            throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null,
+                    String.format(Constants.MESSAGE_FOR_INVALID_FILE_EXTENSION, filePath));
         }
     }
 
-    private void executeOperation() throws CodeGenerationException, CmdException, FormatterException {
+    private void executeOperation() throws CopybookTypeGenerationException, CmdException, FormatterException {
+
         String filePath = argList.get(0);
         generateType(filePath);
     }
 
-    private void generateType(String filePath) throws CmdException, CodeGenerationException, FormatterException {
+    private void generateType(String filePath)
+            throws CmdException, CopybookTypeGenerationException, FormatterException {
+
         final File copybookFile = new File(filePath);
         if (!copybookFile.exists()) {
-            throw new CmdException("MESSAGE_MISSING_BAL_FILE");
+            throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null,
+                    String.format(Constants.MESSAGE_FOR_INVALID_COPYBOOK_PATH, filePath));
         }
         if (!copybookFile.canRead()) {
-            throw new CmdException("MESSAGE_CANNOT_READ_BAL_FILE");
+            throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null,
+                    String.format(Constants.MESSAGE_CAN_NOT_READ_COPYBOOK_FILE, filePath));
         }
         Path copybookFilePath = null;
         try {
             copybookFilePath = Paths.get(copybookFile.getCanonicalPath());
         } catch (IOException e) {
-            throw new CmdException(e.toString());
+            throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null, e.toString());
         }
         CodeGenerator.generate(copybookFilePath, getTargetOutputPath(), outStream);
     }
 
     private Path getTargetOutputPath() {
+
         Path targetOutputPath = executionPath;
         if (this.outputPath != null) {
             if (Paths.get(outputPath).isAbsolute()) {
@@ -121,10 +139,11 @@ public class CopybookCmd implements BLauncherCmd {
     }
 
     private boolean validInputFileExtension(String filePath) {
-        return filePath.endsWith("cpy");
+        return filePath.endsWith(COPYBOOK_EXTENSION) || filePath.endsWith(COBOL_EXTENSION);
     }
 
     private void getCommandUsageInfo() {
+        // TODO: re-write the synapse of the command
         String builder = "ballerina-copybook - Generate Ballerina types for given cobol copybook definitions\n\n" +
                 "bal copybook [-i | --input] <copybook-definition-file-path>\n" +
                 "                    [-o | --output] <output-location>\n\n";
@@ -139,10 +158,12 @@ public class CopybookCmd implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(CommandLine parentCmdParser) {}
+    public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
 
     @Override
     public String getName() {
+
         return CMD_NAME;
     }
 

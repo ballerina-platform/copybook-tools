@@ -84,7 +84,8 @@ public class AnnotationGenerator {
     private static List<String> getNumberAnnotFields(DataItem dataItem) {
 
         List<String> fields = new ArrayList<>();
-        int maxIntegerDigits = 0;
+
+        int maxIntegerDigits = 1;
         if (dataItem.isSinged()) {
             int maxValueExclusive = 0;
             String fieldRef = GeneratorConstants.MAX_VALUE_EXCLUSIVE + GeneratorConstants.COLON + maxValueExclusive;
@@ -94,9 +95,8 @@ public class AnnotationGenerator {
             int minValueExclusive = 0;
             String fieldRef = GeneratorConstants.MIN_VALUE_EXCLUSIVE + GeneratorConstants.COLON + minValueExclusive;
             fields.add(fieldRef);
-            maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2;
+            maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1;
         }
-
         int maxFractionDigits = dataItem.getFloatingPointLength();
         // TODO: write a function to generate constraints fields
         String fieldRef = GeneratorConstants.MAX_INTEGER_DIGITS + GeneratorConstants.COLON + maxIntegerDigits;
