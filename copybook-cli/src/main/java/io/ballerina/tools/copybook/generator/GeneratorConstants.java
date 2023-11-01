@@ -46,4 +46,8 @@ public class GeneratorConstants {
     public static final String ARRAY_TYPE = "Array";
     public static final String FLOATING_POINT = "V";
     public static final String COMP = "COMP";
+
+    // File extensions
+    public static final String COPYBOOK_EXTENSION = ".cpy";
+    public static final String COBOL_EXTENSION = ".cbl";
 }

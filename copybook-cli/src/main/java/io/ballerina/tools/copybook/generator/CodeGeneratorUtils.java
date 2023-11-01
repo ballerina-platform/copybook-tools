@@ -49,7 +49,7 @@ public class CodeGeneratorUtils {
         if (schemaValue instanceof DataItem) {
             return new ReferencedTypeGenerator(schemaValue);
         } else {
-            return new RecordTypeGenerator((GroupItem) schemaValue, typeName);
+            return new RecordTypeGenerator((GroupItem) schemaValue);
         }
     }
 
@@ -115,7 +115,7 @@ public class CodeGeneratorUtils {
                     typeName = SIGNED_DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
                             + FLOATING_POINT + dataItem.getFloatingPointLength();
                 } else {
-                    typeName = DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2) +
+                    typeName = DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1) +
                             FLOATING_POINT + dataItem.getFloatingPointLength();
                 }
             } else {
@@ -132,7 +132,7 @@ public class CodeGeneratorUtils {
             typeName = ALPHA_NUMERIC_TYPE + dataItem.getReadLength();
         }
         if (dataItem.getOccurs() > 0) {
-            typeName = typeName + ARRAY_TYPE + dataItem.getOccurs();
+            typeName = typeName + ARRAY_TYPE;
         }
         return typeName;
     }

@@ -5,7 +5,7 @@ import io.ballerina.copybook.parser.schema.CopyBookLexer;
 import io.ballerina.copybook.parser.schema.CopyBookParser;
 import io.ballerina.copybook.parser.schema.Schema;
 import io.ballerina.copybook.parser.schema.SchemaBuilder;
-import io.ballerina.tools.copybook.exception.CodeGenerationException;
+import io.ballerina.tools.copybook.exception.CopybookTypeGenerationException;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -25,7 +25,7 @@ public abstract class CodeGenerator {
     }
 
     public static void generate(Path cbFilePath, Path targetOutputPath, PrintStream outStream)
-            throws CodeGenerationException, FormatterException {
+            throws CopybookTypeGenerationException, FormatterException {
         int columnsToChop = 6;
         String copyBookString;
         try {
