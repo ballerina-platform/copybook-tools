@@ -14,10 +14,10 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.copybook.parser.schema.DataItem;
-import io.ballerina.copybook.parser.schema.GroupItem;
-import io.ballerina.copybook.parser.schema.Node;
-import io.ballerina.copybook.parser.schema.Schema;
+import io.ballerina.lib.copybook.commons.schema.CopybookNode;
+import io.ballerina.lib.copybook.commons.schema.DataItem;
+import io.ballerina.lib.copybook.commons.schema.GroupItem;
+import io.ballerina.lib.copybook.commons.schema.Schema;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.formatter.core.Formatter;
@@ -56,7 +56,7 @@ public class CopybookTypeGenerator {
 
     public String generateSourceCode(String rootName) throws FormatterException {
 
-        List<Node> typeDefinitions = schema.getTypeDefinitions();
+        List<CopybookNode> typeDefinitions = schema.getTypeDefinitions();
         List<TypeDefinitionNode> typeDefinitionList = new ArrayList<>();
         typeDefinitions.forEach(typeDefinition -> {
             typeDefinitionList.add(generateTypeDefNodes(typeDefinition));
@@ -68,7 +68,7 @@ public class CopybookTypeGenerator {
         return src;
     }
 
-    private TypeDefinitionNode generateRootType(String rootName, List<Node> typeDefinitions) {
+    private TypeDefinitionNode generateRootType(String rootName, List<CopybookNode> typeDefinitions) {
         List<io.ballerina.compiler.syntax.tree.Node> recordFields = new LinkedList<>();
         recordFields.addAll(addRecordFields(typeDefinitions));
         NodeList<io.ballerina.compiler.syntax.tree.Node> fieldNodes =
@@ -80,10 +80,10 @@ public class CopybookTypeGenerator {
                 typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 
-    public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<Node> fields) {
+    public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<CopybookNode> fields) {
 
         List<io.ballerina.compiler.syntax.tree.Node> recordFieldList = new ArrayList<>();
-        for (Node field : fields) {
+        for (CopybookNode field : fields) {
             String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(field.getName().trim());
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameStr);
             TypeDescriptorNode typeDescriptorNode = createSimpleNameReferenceNode(createIdentifierToken(fieldNameStr));
@@ -94,7 +94,7 @@ public class CopybookTypeGenerator {
         return recordFieldList;
     }
 
-    public TypeDefinitionNode generateTypeDefNodes(Node typeDefinition) {
+    public TypeDefinitionNode generateTypeDefNodes(CopybookNode typeDefinition) {
         if (typeDefinition instanceof GroupItem) {
             return generateTypeDefNode(typeDefinition, true);
         } else {
@@ -102,7 +102,7 @@ public class CopybookTypeGenerator {
         }
     }
 
-    public TypeDefinitionNode generateTypeDefNode(Node node, boolean isRecordFieldReference) {
+    public TypeDefinitionNode generateTypeDefNode(CopybookNode node, boolean isRecordFieldReference) {
         IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
                     node.getName().trim()));
         TypeDescriptorNode typeDescriptorNode = getTypeDescriptorNode(node, isRecordFieldReference);
@@ -123,7 +123,7 @@ public class CopybookTypeGenerator {
                 typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 
-    private TypeDescriptorNode getTypeDescriptorNode(Node node, boolean isRecordFieldReference) {
+    private TypeDescriptorNode getTypeDescriptorNode(CopybookNode node, boolean isRecordFieldReference) {
 
         TypeGenerator typeGenerator = CodeGeneratorUtils.getTypeGenerator(node);
         return typeGenerator.generateTypeDescriptorNode(fieldTypeDefinitionList, isRecordFieldReference);

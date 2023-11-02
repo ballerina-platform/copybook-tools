@@ -108,14 +108,14 @@ public class CopybookCmd implements BLauncherCmd {
         }
     }
 
-    private void executeOperation() throws CopybookTypeGenerationException, CmdException, FormatterException {
-
+    private void executeOperation() throws CopybookTypeGenerationException, CmdException, FormatterException,
+            IOException {
         String filePath = argList.get(0);
         generateType(filePath, rootName);
     }
 
     private void generateType(String filePath, String rootName)
-            throws CmdException, CopybookTypeGenerationException, FormatterException {
+            throws CmdException, CopybookTypeGenerationException, FormatterException, IOException {
 
         final File copybookFile = new File(filePath);
         if (!copybookFile.exists()) {
