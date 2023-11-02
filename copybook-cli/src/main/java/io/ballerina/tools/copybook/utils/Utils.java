@@ -16,11 +16,12 @@ import static io.ballerina.tools.copybook.generator.GeneratorConstants.PERIOD;
 
 public class Utils {
 
-    public static void createOutputDirectory(Path outputPath) {
+    public static boolean createOutputDirectory(Path outputPath) {
         File outputDir = new File(outputPath.toString());
         if (!outputDir.exists()) {
-            outputDir.mkdirs();
+            return outputDir.mkdirs();
         }
+        return true;
     }
 
     public static void writeFile(Path filePath, String content) throws CopybookTypeGenerationException {

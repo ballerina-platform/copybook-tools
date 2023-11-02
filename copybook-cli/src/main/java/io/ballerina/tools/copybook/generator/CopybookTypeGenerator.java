@@ -75,9 +75,8 @@ public class CopybookTypeGenerator {
                 AbstractNodeFactory.createNodeList(recordFields);
         TypeDescriptorNode typeDescriptorNode = NodeFactory.createRecordTypeDescriptorNode(createToken(RECORD_KEYWORD),
                 createToken(OPEN_BRACE_TOKEN), fieldNodes, null, createToken(CLOSE_BRACE_TOKEN));
-        MetadataNode metadataNode = null;
         IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(rootName));
-        return createTypeDefinitionNode(metadataNode, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
+        return createTypeDefinitionNode(null, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
                 typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 
@@ -105,11 +104,10 @@ public class CopybookTypeGenerator {
     }
 
     public TypeDefinitionNode generateTypeDefNode(Node node, boolean isRecordFieldReference) {
-        MetadataNode metadataNode = null;
         IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
                     node.getName().trim()));
         TypeDescriptorNode typeDescriptorNode = getTypeDescriptorNode(node, isRecordFieldReference);
-        return createTypeDefinitionNode(metadataNode, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
+        return createTypeDefinitionNode(null, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
                 typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 

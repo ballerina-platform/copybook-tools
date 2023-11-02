@@ -11,7 +11,7 @@ public class NullLocation implements Location {
     private NullLocation() {
     }
 
-    public static NullLocation getInstance() {
+    public static synchronized NullLocation getInstance() {
         if (nullLocation == null) {
             nullLocation = new NullLocation();
         }
@@ -20,12 +20,14 @@ public class NullLocation implements Location {
 
     @Override
     public LineRange lineRange() {
+
         LinePosition from = LinePosition.from(-2, -2);
         return LineRange.from("", from, from);
     }
 
     @Override
     public TextRange textRange() {
+
         return TextRange.from(-2, -2);
     }
 }
