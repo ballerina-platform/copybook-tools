@@ -9,12 +9,19 @@ import io.ballerina.tools.copybook.generator.CodeGenerator;
 import org.ballerinalang.formatter.core.FormatterException;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.COBOL_EXTENSION;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.COPYBOOK_EXTENSION;
@@ -77,13 +84,13 @@ public class CopybookCmd implements BLauncherCmd {
             }
             validateInputFlags();
             executeOperation();
-        } catch (CmdException | CopybookTypeGenerationException | FormatterException e) {
+        } catch (CmdException | CopybookTypeGenerationException | FormatterException | IOException e) {
             outStream.println(e.getMessage());
             exitError(this.exitWhenFinish);
         }
     }
 
-    private void validateInputFlags() throws CmdException {
+    private void validateInputFlags() throws CmdException, IOException {
 
         if (inputPathFlag) {
             if (argList == null) {
@@ -153,11 +160,20 @@ public class CopybookCmd implements BLauncherCmd {
         return filePath.endsWith(COPYBOOK_EXTENSION) || filePath.endsWith(COBOL_EXTENSION);
     }
 
-    private void getCommandUsageInfo() {
+    protected String readContentWithFormat(Path filePath) throws IOException {
+        Stream<String> schemaLines = Files.lines(filePath);
+        String schemaContent = schemaLines.collect(Collectors.joining(System.getProperty("line.separator")));
+        schemaLines.close();
+        return schemaContent;
+    }
+
+    private void getCommandUsageInfo() throws IOException {
         // TODO: re-write the synapse of the command
-        String builder = "ballerina-copybook - Generate Ballerina types for given cobol copybook definitions\n\n" +
+        String builder = "ballerina-copybook - Generate Ballerina types for given cobol copybook \n" +
+                "definitions\n\n" +
                 "bal copybook [-i | --input] <copybook-definition-file-path>\n" +
-                "                    [-o | --output] <output-location>\n\n";
+                "             [-o | --output] <output-location>\n" +
+                "             [-n | --root-name] <root-name>\n\n";
         outStream.println(builder);
     }
 
@@ -174,11 +190,22 @@ public class CopybookCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-
         return CMD_NAME;
     }
 
     @Override
     public void printLongDesc(StringBuilder stringBuilder) {
+        Class<CopybookCmd> cmdClass = CopybookCmd.class;
+        ClassLoader classLoader = cmdClass.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("ballerina-copybook.help");
+        try (InputStreamReader inputStreamREader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+             BufferedReader br = new BufferedReader(inputStreamREader)) {
+            String content = br.readLine();
+            outStream.append(content);
+            while ((content = br.readLine()) != null) {
+                outStream.append('\n').append(content);
+            }
+        } catch (IOException ignore) {
+        }
     }
 }

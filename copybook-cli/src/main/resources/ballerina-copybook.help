@@ -1,5 +1,6 @@
 NAME
-       ballerina-copybook - Generate Ballerina types for given cobol copybook definitions
+       ballerina-copybook - Generate Ballerina types for given cobol copybook
+       definitions
 
 
 SYNOPSIS
@@ -18,14 +19,16 @@ DESCRIPTION
 OPTIONS
        -i, --input <copybook-definition-file-path>
             This is a mandatory input. The given copybook definition input will
-            generate a Ballerina records types. This generated record types can be used as a code
-            template to start the copybook ballerina mapping.
+            generate a Ballerina records types. This generated record types can
+            be used as a code template to start the copybook ballerina mapping.
 
         -o, --output <output>
-            Location of the generated Ballerina source code. If this path is not
-            specified, the output will be written to the same directory from
-            which the command is run.
+            Location of the generated Ballerina source code. If this path is
+            not specified, the output will be written to the same directory
+            from which the command is run.
+
 
 EXAMPLES
-       Generate a Ballerina record types using a `copybook.cpy` copybook definition.
+       Generate a Ballerina record types using a `copybook.cpy` copybook
+       definition.
            $ bal copybook -i copybook.cpy

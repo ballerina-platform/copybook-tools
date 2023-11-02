@@ -98,7 +98,6 @@ public class CopybookTypeGenerator {
         if (typeDefinition instanceof GroupItem) {
             return generateTypeDefNode(typeDefinition, true);
         } else {
-            // TODO: add a if else and return exception from the else block
             return generateTypeDefNode(typeDefinition, false);
         }
     }
