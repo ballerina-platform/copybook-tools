@@ -13,6 +13,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.copybook.parser.schema.DataItem;
 import io.ballerina.copybook.parser.schema.GroupItem;
+import io.ballerina.copybook.parser.schema.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,14 +44,35 @@ public class CodeGeneratorUtils {
 
     public static final MinutiaeList SINGLE_WS_MINUTIAE = getSingleWSMinutiae();
 
-    public static TypeGenerator getTypeGenerator(io.ballerina.copybook.parser.schema.Node schemaValue,
-                                                 String typeName) {
-
-        if (schemaValue instanceof DataItem) {
-            return new ReferencedTypeGenerator(schemaValue);
+    public static TypeGenerator getTypeGenerator(io.ballerina.copybook.parser.schema.Node schemaValue) {
+        if (schemaValue.getOccurs() > 0) {
+            return new ArrayTypeGenerator(schemaValue);
+        } else if (schemaValue instanceof DataItem) {
+            return new ReferencedTypeGenerator((DataItem) schemaValue);
         } else {
             return new RecordTypeGenerator((GroupItem) schemaValue);
         }
+    }
+
+    public static String getTypeReferenceName(Node dataItem, boolean isRecordFieldReference) {
+
+        if (dataItem instanceof DataItem) {
+            if (!isRecordFieldReference) {
+                if (((DataItem) dataItem).isNumeric()) {
+                    if (((DataItem) dataItem).getFloatingPointLength() > 0) {
+                        return "decimal";
+                    }
+                    return "int";
+                } else if (((DataItem) dataItem).getPicture().contains("COMP")) {
+                    return "byte[]";
+                } else {
+                    return "string";
+                }
+            } else {
+                return extractTypeReferenceName((DataItem) dataItem);
+            }
+        }
+        return dataItem.getName();
     }
 
     public static ImportDeclarationNode getImportDeclarationNode(String orgName, String moduleName) {
