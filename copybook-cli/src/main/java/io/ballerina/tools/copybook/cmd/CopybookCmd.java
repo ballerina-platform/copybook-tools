@@ -41,11 +41,14 @@ public class CopybookCmd implements BLauncherCmd {
             description = "Directory to store the generated Ballerina record types")
     private String outputPath;
 
+    @CommandLine.Option(names = {"-n", "--root-name"},
+            description = "Root record name that includes the Copybook root type")
+    private String rootName;
+
     @CommandLine.Parameters
     private List<String> argList;
 
     public CopybookCmd() {
-
         this(System.err, Paths.get(System.getProperty("user.dir")), true);
     }
 
@@ -101,10 +104,10 @@ public class CopybookCmd implements BLauncherCmd {
     private void executeOperation() throws CopybookTypeGenerationException, CmdException, FormatterException {
 
         String filePath = argList.get(0);
-        generateType(filePath);
+        generateType(filePath, rootName);
     }
 
-    private void generateType(String filePath)
+    private void generateType(String filePath, String rootName)
             throws CmdException, CopybookTypeGenerationException, FormatterException {
 
         final File copybookFile = new File(filePath);
@@ -122,7 +125,10 @@ public class CopybookCmd implements BLauncherCmd {
         } catch (IOException e) {
             throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null, e.toString());
         }
-        CodeGenerator.generate(copybookFilePath, getTargetOutputPath(), outStream);
+        if (rootName == null) {
+            rootName = copybookFilePath.getFileName().toString();
+        }
+        CodeGenerator.generate(copybookFilePath, rootName, getTargetOutputPath(), outStream);
     }
 
     private Path getTargetOutputPath() {

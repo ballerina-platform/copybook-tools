@@ -34,7 +34,7 @@ public class GeneratorConstants {
     public static final String SLASH = "/";
     public static final String IMPORT = "import";
     public static final String SEMICOLON = ";";
-
+    public static final String PERIOD = ".";
 
     // Copybook types
     public static final String SIGNED_DECIMAL_TYPE = "SignedDecimal";
@@ -49,5 +49,5 @@ public class GeneratorConstants {
 
     // File extensions
     public static final String COPYBOOK_EXTENSION = ".cpy";
-    public static final String COBOL_EXTENSION = ".cbl";
+    public static final String COBOL_EXTENSION = ".cob";
 }

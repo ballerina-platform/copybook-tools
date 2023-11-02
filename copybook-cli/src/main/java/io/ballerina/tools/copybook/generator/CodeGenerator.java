@@ -15,6 +15,9 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 
 import static io.ballerina.copybook.parser.schema.CopyBookPreprocessor.chopCopybookColumn;
+import static io.ballerina.tools.copybook.utils.Utils.createOutputDirectory;
+import static io.ballerina.tools.copybook.utils.Utils.resolveSchemaFileName;
+import static io.ballerina.tools.copybook.utils.Utils.writeFile;
 
 /**
  * This class implements the GraphQL code generator tool.
@@ -24,7 +27,7 @@ public abstract class CodeGenerator {
     protected CodeGenerator() {
     }
 
-    public static void generate(Path cbFilePath, Path targetOutputPath, PrintStream outStream)
+    public static void generate(Path cbFilePath, String rootName, Path targetOutputPath, PrintStream outStream)
             throws CopybookTypeGenerationException, FormatterException {
         int columnsToChop = 6;
         String copyBookString;
@@ -40,14 +43,16 @@ public abstract class CodeGenerator {
         CopyBookErrorListener errorListener = new CopyBookErrorListener();
         parser.addErrorListener(errorListener);
         CopyBookParser.StartRuleContext startRule = parser.startRule();
-//        if (errorListener.hasErrors()) {
-//            // TODO: return error
-//        }
         SchemaBuilder visitor = new SchemaBuilder();
         startRule.accept(visitor);
         Schema schema = visitor.getSchema();
+
         CopybookTypeGenerator codeGenerator = new CopybookTypeGenerator(schema);
-        String src = codeGenerator.generateSourceCode();
-        outStream.println(src);
+        String src = codeGenerator.generateSourceCode(rootName);
+        String fileName = resolveSchemaFileName(targetOutputPath, rootName);
+        createOutputDirectory(targetOutputPath);
+        writeFile(targetOutputPath.resolve(fileName), src);
+        outStream.println("Ballerina record types generated successfully and copied to :");
+        outStream.println("-- " + fileName);
     }
 }
