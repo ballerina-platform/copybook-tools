@@ -6,7 +6,7 @@ import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.copybook.parser.schema.DataItem;
+import io.ballerina.lib.copybook.commons.schema.DataItem;
 
 import java.util.ArrayList;
 import java.util.List;

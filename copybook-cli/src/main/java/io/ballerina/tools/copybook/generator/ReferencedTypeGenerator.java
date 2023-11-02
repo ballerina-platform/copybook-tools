@@ -2,7 +2,7 @@ package io.ballerina.tools.copybook.generator;
 
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.copybook.parser.schema.DataItem;
+import io.ballerina.lib.copybook.commons.schema.DataItem;
 
 import java.util.List;
 

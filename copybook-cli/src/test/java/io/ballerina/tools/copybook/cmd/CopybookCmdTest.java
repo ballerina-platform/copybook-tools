@@ -15,7 +15,7 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook command with help flag")
     public void testCopybookCmdHelp() throws IOException {
-        String[] args = {"-i", resourceDir.resolve("retrieveContract_v5.cpy").toString(),
+        String[] args = {"-i", resourceDir.resolve("copybook.cpy").toString(),
                          "-o", tmpDir.toString(), "-n", "Copybook"};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
         new CommandLine(copybookCmd).parseArgs(args);
