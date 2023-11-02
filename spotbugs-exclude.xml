@@ -19,4 +19,10 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2, MS_EXPOSE_REP"/>
     </Match>
+    <Match>
+        <And>
+            <Class name="io.ballerina.tools.copybook.generator.CodeGeneratorUtils" />
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </And>
+    </Match>
 </FindBugsFilter>

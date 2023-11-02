@@ -126,9 +126,14 @@ public class CopybookCmd implements BLauncherCmd {
             throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null, e.toString());
         }
         if (rootName == null) {
-            rootName = copybookFilePath.getFileName().toString();
+            rootName = getFileName(filePath);
         }
         CodeGenerator.generate(copybookFilePath, rootName, getTargetOutputPath(), outStream);
+    }
+
+    private String getFileName(String filePath) {
+        String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+        return fileName.substring(0, fileName.lastIndexOf('.'));
     }
 
     private Path getTargetOutputPath() {

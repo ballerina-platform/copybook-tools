@@ -5,6 +5,7 @@ import io.ballerina.copybook.parser.schema.CopyBookLexer;
 import io.ballerina.copybook.parser.schema.CopyBookParser;
 import io.ballerina.copybook.parser.schema.Schema;
 import io.ballerina.copybook.parser.schema.SchemaBuilder;
+import io.ballerina.tools.copybook.diagnostic.DiagnosticMessages;
 import io.ballerina.tools.copybook.exception.CopybookTypeGenerationException;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -47,10 +48,14 @@ public abstract class CodeGenerator {
         startRule.accept(visitor);
         Schema schema = visitor.getSchema();
 
+        boolean isCreated = createOutputDirectory(targetOutputPath);
+        if (!isCreated) {
+            throw new CopybookTypeGenerationException(DiagnosticMessages.COPYBOOK_TYPE_GEN_103, null,
+                    targetOutputPath.toString());
+        }
         CopybookTypeGenerator codeGenerator = new CopybookTypeGenerator(schema);
         String src = codeGenerator.generateSourceCode(rootName);
         String fileName = resolveSchemaFileName(targetOutputPath, rootName);
-        createOutputDirectory(targetOutputPath);
         writeFile(targetOutputPath.resolve(fileName), src);
         outStream.println("Ballerina record types generated successfully and copied to :");
         outStream.println("-- " + fileName);

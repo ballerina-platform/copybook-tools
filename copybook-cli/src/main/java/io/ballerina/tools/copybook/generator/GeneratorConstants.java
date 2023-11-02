@@ -19,6 +19,7 @@ public class GeneratorConstants {
     public static final String DECIMAL = "decimal";
     public static final String MAX_DIGITS = "maxDigits";
     public static final String MAX_LENGTH = "maxLength";
+    public static final String MIN_VALUE = "minValue";
     public static final String MAX_VALUE_EXCLUSIVE = "maxValueExclusive";
     public static final String MIN_VALUE_EXCLUSIVE = "minValueExclusive";
     public static final String MAX_INTEGER_DIGITS = "maxIntegerDigits";
@@ -38,6 +39,7 @@ public class GeneratorConstants {
 
     // Copybook types
     public static final String SIGNED_DECIMAL_TYPE = "SignedDecimal";
+    public static final String NEGATIVE_DECIMAL_TYPE = "NegativeDecimal";
     public static final String DECIMAL_TYPE = "Decimal";
     public static final String SIGNED_INTEGER_TYPE = "SignedInteger";
     public static final String INTEGER_TYPE = "Integer";

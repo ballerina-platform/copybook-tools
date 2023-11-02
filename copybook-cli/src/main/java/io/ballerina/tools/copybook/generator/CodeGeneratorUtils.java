@@ -34,6 +34,7 @@ import static io.ballerina.tools.copybook.generator.GeneratorConstants.IMPORT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_IN_BINARY_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SEMICOLON;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_INTEGER_TYPE;
@@ -45,10 +46,11 @@ public class CodeGeneratorUtils {
     public static final MinutiaeList SINGLE_WS_MINUTIAE = getSingleWSMinutiae();
 
     public static TypeGenerator getTypeGenerator(io.ballerina.copybook.parser.schema.Node schemaValue) {
+
         if (schemaValue.getOccurs() > 0) {
             return new ArrayTypeGenerator(schemaValue);
-        } else if (schemaValue instanceof DataItem) {
-            return new ReferencedTypeGenerator((DataItem) schemaValue);
+        } else if (schemaValue instanceof DataItem dataItem) {
+            return new ReferencedTypeGenerator(dataItem);
         } else {
             return new RecordTypeGenerator((GroupItem) schemaValue);
         }
@@ -137,8 +139,14 @@ public class CodeGeneratorUtils {
                     typeName = SIGNED_DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
                             + FLOATING_POINT + dataItem.getFloatingPointLength();
                 } else {
-                    typeName = DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1) +
-                            FLOATING_POINT + dataItem.getFloatingPointLength();
+                    if (dataItem.getPicture().startsWith("-9")) {
+                        typeName = NEGATIVE_DECIMAL_TYPE +
+                                (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
+                                + FLOATING_POINT + dataItem.getFloatingPointLength();
+                    } else {
+                        typeName = DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1) +
+                                FLOATING_POINT + dataItem.getFloatingPointLength();
+                    }
                 }
             } else {
                 if (dataItem.isSinged()) {
@@ -160,6 +168,7 @@ public class CodeGeneratorUtils {
     }
 
     public static String getValidName(String identifier) {
+
         if (!identifier.matches("\\b[0-9]*\\b")) {
             String[] split = identifier.split(GeneratorConstants.SPECIAL_CHAR_REGEX);
             StringBuilder validName = new StringBuilder();

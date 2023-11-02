@@ -64,13 +64,9 @@ public class AnnotationGenerator {
     private static List<String> getIntAnnotFields(DataItem dataItem) {
 
         List<String> fields = new ArrayList<>();
-        if (dataItem.isSinged()) {
-            int maxValueExclusive = 0;
-            String fieldRef = GeneratorConstants.MAX_VALUE_EXCLUSIVE + GeneratorConstants.COLON + maxValueExclusive;
-            fields.add(fieldRef);
-        } else {
-            int minValueExclusive = 0;
-            String fieldRef = GeneratorConstants.MIN_VALUE_EXCLUSIVE + GeneratorConstants.COLON + minValueExclusive;
+        if (!dataItem.isSinged()) {
+            int minValue = 0;
+            String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
             fields.add(fieldRef);
         }
         int maxDigits = dataItem.getReadLength();
@@ -87,15 +83,16 @@ public class AnnotationGenerator {
 
         int maxIntegerDigits = 1;
         if (dataItem.isSinged()) {
-            int maxValueExclusive = 0;
-            String fieldRef = GeneratorConstants.MAX_VALUE_EXCLUSIVE + GeneratorConstants.COLON + maxValueExclusive;
-            fields.add(fieldRef);
             maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2;
         } else {
-            int minValueExclusive = 0;
-            String fieldRef = GeneratorConstants.MIN_VALUE_EXCLUSIVE + GeneratorConstants.COLON + minValueExclusive;
-            fields.add(fieldRef);
-            maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1;
+            if (dataItem.getPicture().startsWith("-9")) {
+                maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2;
+            } else {
+                int minValue = 0;
+                String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
+                fields.add(fieldRef);
+                maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1;
+            }
         }
         int maxFractionDigits = dataItem.getFloatingPointLength();
         // TODO: write a function to generate constraints fields
