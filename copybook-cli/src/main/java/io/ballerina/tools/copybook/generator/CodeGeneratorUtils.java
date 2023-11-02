@@ -11,9 +11,9 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.copybook.parser.schema.DataItem;
-import io.ballerina.copybook.parser.schema.GroupItem;
-import io.ballerina.copybook.parser.schema.Node;
+import io.ballerina.lib.copybook.commons.schema.CopybookNode;
+import io.ballerina.lib.copybook.commons.schema.DataItem;
+import io.ballerina.lib.copybook.commons.schema.GroupItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +45,9 @@ public class CodeGeneratorUtils {
 
     public static final MinutiaeList SINGLE_WS_MINUTIAE = getSingleWSMinutiae();
 
-    public static TypeGenerator getTypeGenerator(io.ballerina.copybook.parser.schema.Node schemaValue) {
+    public static TypeGenerator getTypeGenerator(CopybookNode schemaValue) {
 
-        if (schemaValue.getOccurs() > 0) {
+        if (schemaValue.getOccurringCount() > 0) {
             return new ArrayTypeGenerator(schemaValue);
         } else if (schemaValue instanceof DataItem dataItem) {
             return new ReferencedTypeGenerator(dataItem);
@@ -56,7 +56,7 @@ public class CodeGeneratorUtils {
         }
     }
 
-    public static String getTypeReferenceName(Node dataItem, boolean isRecordFieldReference) {
+    public static String getTypeReferenceName(CopybookNode dataItem, boolean isRecordFieldReference) {
 
         if (dataItem instanceof DataItem) {
             if (!isRecordFieldReference) {
@@ -161,7 +161,7 @@ public class CodeGeneratorUtils {
         } else {
             typeName = ALPHA_NUMERIC_TYPE + dataItem.getReadLength();
         }
-        if (dataItem.getOccurs() > 0) {
+        if (dataItem.getOccurringCount() > 0) {
             typeName = typeName + ARRAY_TYPE;
         }
         return typeName;

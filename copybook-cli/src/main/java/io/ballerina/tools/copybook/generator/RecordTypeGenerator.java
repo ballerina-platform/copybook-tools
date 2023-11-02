@@ -2,13 +2,14 @@ package io.ballerina.tools.copybook.generator;
 
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.copybook.parser.schema.GroupItem;
-import io.ballerina.copybook.parser.schema.Node;
+import io.ballerina.lib.copybook.commons.schema.CopybookNode;
+import io.ballerina.lib.copybook.commons.schema.GroupItem;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -33,22 +34,22 @@ public class RecordTypeGenerator extends TypeGenerator {
     @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList,
                                                                    boolean isRecordFieldReference) {
 
-        List<io.ballerina.compiler.syntax.tree.Node> recordFields = new LinkedList<>();
+        List<Node> recordFields = new LinkedList<>();
         RecordMetadata metadataBuilder = getRecordMetadata();
-        List<Node> fields = groupItemNode.getChildren();
+        List<CopybookNode> fields = groupItemNode.getChildren();
         recordFields.addAll(addRecordFields(fields, typeDefList));
-        NodeList<io.ballerina.compiler.syntax.tree.Node> fieldNodes =
+        NodeList<Node> fieldNodes =
                 AbstractNodeFactory.createNodeList(recordFields);
         return NodeFactory.createRecordTypeDescriptorNode(createToken(RECORD_KEYWORD),
                 createToken(OPEN_BRACE_TOKEN), fieldNodes, metadataBuilder.getRestDescriptorNode(),
                 createToken(CLOSE_BRACE_TOKEN));
     }
 
-    public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<Node> fields,
+    public List<Node> addRecordFields(List<CopybookNode> fields,
                                                                         List<TypeDefinitionNode> typeDefList) {
 
-        List<io.ballerina.compiler.syntax.tree.Node> recordFieldList = new ArrayList<>();
-        for (Node field : fields) {
+        List<Node> recordFieldList = new ArrayList<>();
+        for (CopybookNode field : fields) {
             String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(field.getName().trim());
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameStr);
             TypeGenerator typeGenerator = CodeGeneratorUtils.getTypeGenerator(field);
