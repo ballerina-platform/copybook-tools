@@ -5,9 +5,9 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.copybook.parser.schema.DataItem;
-import io.ballerina.copybook.parser.schema.GroupItem;
-import io.ballerina.copybook.parser.schema.Node;
+import io.ballerina.lib.copybook.commons.schema.CopybookNode;
+import io.ballerina.lib.copybook.commons.schema.DataItem;
+import io.ballerina.lib.copybook.commons.schema.GroupItem;
 
 import java.util.List;
 
@@ -26,9 +26,9 @@ import static io.ballerina.tools.copybook.generator.CopybookTypeGenerator.genera
 
 public class ArrayTypeGenerator extends TypeGenerator {
 
-    Node schemaValue;
+    CopybookNode schemaValue;
 
-    public ArrayTypeGenerator(Node groupItemNode) {
+    public ArrayTypeGenerator(CopybookNode groupItemNode) {
         this.schemaValue = groupItemNode;
     }
 
@@ -47,7 +47,7 @@ public class ArrayTypeGenerator extends TypeGenerator {
 
         BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
                 createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
-                        String.valueOf(schemaValue.getOccurs()),
+                        String.valueOf(schemaValue.getOccurringCount()),
                         createEmptyMinutiaeList(), createEmptyMinutiaeList()));
         ArrayDimensionNode arrayDimension =
                 createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
@@ -68,7 +68,7 @@ public class ArrayTypeGenerator extends TypeGenerator {
         String typeName = CodeGeneratorUtils.getValidName(extractName);
         BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
                 createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
-                        String.valueOf(schemaValue.getOccurs()),
+                        String.valueOf(schemaValue.getOccurringCount()),
                         createEmptyMinutiaeList(), createEmptyMinutiaeList()));
         ArrayDimensionNode arrayDimension =
                 createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
