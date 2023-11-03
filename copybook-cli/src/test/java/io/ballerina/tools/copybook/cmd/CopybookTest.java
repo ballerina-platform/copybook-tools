@@ -20,7 +20,7 @@ public abstract class CopybookTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        this.tmpDir = Files.createTempDirectory("graphql-cmd-test-out-" + System.nanoTime());
+        this.tmpDir = Files.createTempDirectory("copybook-cmd-test-out-" + System.nanoTime());
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
     }

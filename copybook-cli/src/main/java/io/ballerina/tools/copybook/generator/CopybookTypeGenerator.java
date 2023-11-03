@@ -16,7 +16,6 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.lib.copybook.commons.schema.CopybookNode;
 import io.ballerina.lib.copybook.commons.schema.DataItem;
-import io.ballerina.lib.copybook.commons.schema.GroupItem;
 import io.ballerina.lib.copybook.commons.schema.Schema;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -58,17 +57,15 @@ public class CopybookTypeGenerator {
 
         List<CopybookNode> typeDefinitions = schema.getTypeDefinitions();
         List<TypeDefinitionNode> typeDefinitionList = new ArrayList<>();
-        typeDefinitions.forEach(typeDefinition -> {
-            typeDefinitionList.add(generateTypeDefNodes(typeDefinition));
-        });
+        typeDefinitions.forEach(typeDefinition -> typeDefinitionList.add(generateTypeDefNode(typeDefinition)));
         fieldTypeDefinitionList.add(generateRootType(rootName, typeDefinitions));
         fieldTypeDefinitionList.addAll(typeDefinitionList);
         String generatedSyntaxTree = Formatter.format(generateSyntaxTree()).toString();
-        String src = Formatter.format(generatedSyntaxTree);
-        return src;
+        return Formatter.format(generatedSyntaxTree);
     }
 
     private TypeDefinitionNode generateRootType(String rootName, List<CopybookNode> typeDefinitions) {
+
         List<io.ballerina.compiler.syntax.tree.Node> recordFields = new LinkedList<>();
         recordFields.addAll(addRecordFields(typeDefinitions));
         NodeList<io.ballerina.compiler.syntax.tree.Node> fieldNodes =
@@ -83,8 +80,8 @@ public class CopybookTypeGenerator {
     public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<CopybookNode> fields) {
 
         List<io.ballerina.compiler.syntax.tree.Node> recordFieldList = new ArrayList<>();
-        for (CopybookNode field : fields) {
-            String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(field.getName().trim());
+        for (CopybookNode fieldNode : fields) {
+            String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(fieldNode.getName().trim());
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameStr);
             TypeDescriptorNode typeDescriptorNode = createSimpleNameReferenceNode(createIdentifierToken(fieldNameStr));
             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
@@ -94,39 +91,29 @@ public class CopybookTypeGenerator {
         return recordFieldList;
     }
 
-    public TypeDefinitionNode generateTypeDefNodes(CopybookNode typeDefinition) {
-        if (typeDefinition instanceof GroupItem) {
-            return generateTypeDefNode(typeDefinition, true);
-        } else {
-            return generateTypeDefNode(typeDefinition, false);
-        }
-    }
+    public TypeDefinitionNode generateTypeDefNode(CopybookNode node) {
 
-    public TypeDefinitionNode generateTypeDefNode(CopybookNode node, boolean isRecordFieldReference) {
         IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
-                    node.getName().trim()));
-        TypeDescriptorNode typeDescriptorNode = getTypeDescriptorNode(node, isRecordFieldReference);
+                node.getName().trim()));
+        TypeDescriptorNode typeDescriptorNode = getTypeDescriptorNode(node);
         return createTypeDefinitionNode(null, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
                 typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 
     public static TypeDefinitionNode generateFieldTypeDefNode(DataItem node, String extractedTypeName) {
-        IdentifierToken typeName;
-        List<AnnotationNode> typeAnnotations = new ArrayList<>();
-        MetadataNode metadataNode = null;
-        typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
+        IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
                 extractTypeReferenceName(node)));
+        List<AnnotationNode> typeAnnotations = new ArrayList<>();
         typeAnnotations.add(CodeGeneratorUtils.generateConstraintNode(node));
-        metadataNode = createMetadataNode(null, createNodeList(typeAnnotations));
+        MetadataNode metadataNode = createMetadataNode(null, createNodeList(typeAnnotations));
         TypeDescriptorNode typeDescriptorNode = createSimpleNameReferenceNode(createIdentifierToken(extractedTypeName));
         return createTypeDefinitionNode(metadataNode, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
                 typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 
-    private TypeDescriptorNode getTypeDescriptorNode(CopybookNode node, boolean isRecordFieldReference) {
-
+    private TypeDescriptorNode getTypeDescriptorNode(CopybookNode node) {
         TypeGenerator typeGenerator = CodeGeneratorUtils.getTypeGenerator(node);
-        return typeGenerator.generateTypeDescriptorNode(fieldTypeDefinitionList, isRecordFieldReference);
+        return typeGenerator.generateTypeDescriptorNode(fieldTypeDefinitionList);
     }
 
     public SyntaxTree generateSyntaxTree() {

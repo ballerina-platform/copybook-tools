@@ -31,8 +31,7 @@ public class RecordTypeGenerator extends TypeGenerator {
         this.groupItemNode = groupItemNode;
     }
 
-    @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList,
-                                                                   boolean isRecordFieldReference) {
+    @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
 
         List<Node> recordFields = new LinkedList<>();
         RecordMetadata metadataBuilder = getRecordMetadata();
@@ -45,15 +44,14 @@ public class RecordTypeGenerator extends TypeGenerator {
                 createToken(CLOSE_BRACE_TOKEN));
     }
 
-    public List<Node> addRecordFields(List<CopybookNode> fields,
-                                                                        List<TypeDefinitionNode> typeDefList) {
+    public List<Node> addRecordFields(List<CopybookNode> fields, List<TypeDefinitionNode> typeDefList) {
 
         List<Node> recordFieldList = new ArrayList<>();
         for (CopybookNode field : fields) {
             String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(field.getName().trim());
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameStr);
             TypeGenerator typeGenerator = CodeGeneratorUtils.getTypeGenerator(field);
-            TypeDescriptorNode typeDescriptorNode = typeGenerator.generateTypeDescriptorNode(typeDefList, true);
+            TypeDescriptorNode typeDescriptorNode = typeGenerator.generateTypeDescriptorNode(typeDefList);
             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                     typeDescriptorNode, fieldName, createToken(QUESTION_MARK_TOKEN), createToken(SEMICOLON_TOKEN));
             recordFieldList.add(recordFieldNode);
@@ -62,10 +60,7 @@ public class RecordTypeGenerator extends TypeGenerator {
     }
 
     public RecordMetadata getRecordMetadata() {
-
         boolean isOpenRecord = true;
-        return new RecordMetadata.Builder()
-                .withIsOpenRecord(isOpenRecord)
-                .withRestDescriptorNode(null).build();
+        return new RecordMetadata.Builder().withIsOpenRecord(isOpenRecord).withRestDescriptorNode(null).build();
     }
 }

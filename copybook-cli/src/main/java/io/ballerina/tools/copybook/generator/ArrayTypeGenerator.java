@@ -32,18 +32,16 @@ public class ArrayTypeGenerator extends TypeGenerator {
         this.schemaValue = groupItemNode;
     }
 
-    @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList,
-                                                                   boolean isRecordFieldReference) {
+    @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
 
         if (schemaValue instanceof GroupItem) {
-            return getGroputItemDescriptorNode(typeDefList, isRecordFieldReference);
+            return getGroputItemDescriptorNode(typeDefList);
         } else {
-            return getDataItemDescriptorNode(typeDefList, isRecordFieldReference);
+            return getDataItemDescriptorNode(typeDefList);
         }
     }
 
-    private TypeDescriptorNode getGroputItemDescriptorNode(List<TypeDefinitionNode> typeDefList,
-                                                           boolean isRecordFieldReference) {
+    private TypeDescriptorNode getGroputItemDescriptorNode(List<TypeDefinitionNode> typeDefList) {
 
         BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
                 createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
@@ -54,17 +52,21 @@ public class ArrayTypeGenerator extends TypeGenerator {
                         createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
         TypeGenerator typeGenerator = new RecordTypeGenerator((GroupItem) schemaValue);
         TypeDescriptorNode wrappedType =
-                typeGenerator.generateTypeDescriptorNode(typeDefList, isRecordFieldReference);
+                typeGenerator.generateTypeDescriptorNode(typeDefList);
         return createArrayTypeDescriptorNode(wrappedType, createNodeList(arrayDimension));
     }
 
-    private TypeDescriptorNode getDataItemDescriptorNode(List<TypeDefinitionNode> typeDefList,
-                                                           boolean isRecordFieldReference) {
+    private TypeDescriptorNode getDataItemDescriptorNode(List<TypeDefinitionNode> typeDefList) {
 
         TypeDefinitionNode fieldType = generateFieldTypeDefNode(
                 (DataItem) schemaValue, getTypeReferenceName(schemaValue, false));
         addToFieldTypeDefinitionList(fieldType, typeDefList);
-        String extractName = getTypeReferenceName(schemaValue, isRecordFieldReference);
+        String extractName;
+        if (schemaValue.getOccurringCount() > 0) {
+            extractName = getTypeReferenceName(schemaValue, true);
+        } else {
+            extractName = getTypeReferenceName(schemaValue, false);
+        }
         String typeName = CodeGeneratorUtils.getValidName(extractName);
         BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
                 createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,

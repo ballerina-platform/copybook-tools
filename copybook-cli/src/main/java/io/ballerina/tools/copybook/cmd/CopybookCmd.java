@@ -168,7 +168,6 @@ public class CopybookCmd implements BLauncherCmd {
     }
 
     private void getCommandUsageInfo() throws IOException {
-        // TODO: re-write the synapse of the command
         String builder = "ballerina-copybook - Generate Ballerina types for given cobol copybook \n" +
                 "definitions\n\n" +
                 "bal copybook [-i | --input] <copybook-definition-file-path>\n" +
