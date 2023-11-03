@@ -14,18 +14,16 @@ import static io.ballerina.tools.copybook.utils.Utils.createOutputDirectory;
 import static io.ballerina.tools.copybook.utils.Utils.resolveSchemaFileName;
 import static io.ballerina.tools.copybook.utils.Utils.writeFile;
 
-/**
- * This class implements the GraphQL code generator tool.
- */
 public abstract class CodeGenerator {
 
     protected CodeGenerator() {
+
     }
 
     public static void generate(Path cbFilePath, String rootName, Path targetOutputPath, PrintStream outStream)
             throws CopybookTypeGenerationException, FormatterException, IOException {
-        Schema schema = CopyBook.parse(cbFilePath.toString());
 
+        Schema schema = CopyBook.parse(cbFilePath.toString());
         boolean isCreated = createOutputDirectory(targetOutputPath);
         if (!isCreated) {
             throw new CopybookTypeGenerationException(DiagnosticMessages.COPYBOOK_TYPE_GEN_103, null,

@@ -7,7 +7,6 @@ import java.util.List;
 
 public abstract class TypeGenerator {
 
-    public abstract TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList,
-                                                                  boolean isRecordFieldReference);
+    public abstract TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList);
 
 }

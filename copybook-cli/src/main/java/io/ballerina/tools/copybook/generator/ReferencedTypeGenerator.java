@@ -25,10 +25,9 @@ public class ReferencedTypeGenerator extends TypeGenerator {
      * Generate TypeDescriptorNode for referenced schemas.
      */
     @Override
-    public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList,
-                                                         boolean isRecordFieldReference) {
+    public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
 
-        String extractName = getTypeReferenceName(fieldSchema, isRecordFieldReference);
+        String extractName = getTypeReferenceName(fieldSchema, true);
         String typeName = CodeGeneratorUtils.getValidName(extractName);
         TypeDefinitionNode fieldType = generateFieldTypeDefNode(fieldSchema, getTypeReferenceName(fieldSchema, false));
         addToFieldTypeDefinitionList(fieldType, typeDefList);

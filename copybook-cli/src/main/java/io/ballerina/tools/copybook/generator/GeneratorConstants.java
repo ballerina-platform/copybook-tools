@@ -14,14 +14,9 @@ public class GeneratorConstants {
     public static final String CONSTRAINT = "constraint";
 
     // Identifiers
-    public static final String STRING = "string";
-    public static final String INT = "int";
-    public static final String DECIMAL = "decimal";
     public static final String MAX_DIGITS = "maxDigits";
     public static final String MAX_LENGTH = "maxLength";
     public static final String MIN_VALUE = "minValue";
-    public static final String MAX_VALUE_EXCLUSIVE = "maxValueExclusive";
-    public static final String MIN_VALUE_EXCLUSIVE = "minValueExclusive";
     public static final String MAX_INTEGER_DIGITS = "maxIntegerDigits";
     public static final String MAX_FRACTION_DIGITS = "maxFractionDigits";
     public static final String COLON = ":";
@@ -47,7 +42,15 @@ public class GeneratorConstants {
     public static final String INTEGER_IN_BINARY_TYPE = "IntegerInBinary";
     public static final String ARRAY_TYPE = "Array";
     public static final String FLOATING_POINT = "V";
-    public static final String COMP = "COMP";
+    public static final String NEGATIVE_DECIMAL_PIC = "-9";
+    public static final String COMP_PIC = "COMP";
+
+    // Ballerina types
+    public static final String STRING = "string";
+    public static final String INT = "int";
+    public static final String DECIMAL = "decimal";
+    public static final String BYTE_ARRAY = "byte[]";
+
 
     // File extensions
     public static final String COPYBOOK_EXTENSION = ".cpy";

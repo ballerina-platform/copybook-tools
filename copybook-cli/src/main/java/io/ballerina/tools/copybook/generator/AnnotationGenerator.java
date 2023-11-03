@@ -16,12 +16,13 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createSimpleNameReferenceNode;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.AT_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.MAPPING_CONSTRUCTOR;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_PIC;
 
 public class AnnotationGenerator {
 
-    public static AnnotationNode generateStringConstraint(DataItem dataItem) {
+    public static AnnotationNode generateStringConstraint(DataItem node) {
 
-        List<String> fields = getStringAnnotFields(dataItem);
+        List<String> fields = getStringAnnotFields(node);
         if (fields.isEmpty()) {
             return null;
         }
@@ -30,9 +31,9 @@ public class AnnotationGenerator {
         return createAnnotationNode(GeneratorConstants.CONSTRAINT_STRING, annotBody);
     }
 
-    public static AnnotationNode generateIntConstraint(DataItem dataItem) {
+    public static AnnotationNode generateIntConstraint(DataItem node) {
 
-        List<String> fields = getIntAnnotFields(dataItem);
+        List<String> fields = getIntAnnotFields(node);
         if (fields.isEmpty()) {
             return null;
         }
@@ -41,9 +42,9 @@ public class AnnotationGenerator {
         return createAnnotationNode(GeneratorConstants.CONSTRAINT_INT, annotBody);
     }
 
-    public static AnnotationNode generateNumberConstraint(DataItem dataItem) {
+    public static AnnotationNode generateNumberConstraint(DataItem node) {
 
-        List<String> fields = getNumberAnnotFields(dataItem);
+        List<String> fields = getNumberAnnotFields(node);
         if (fields.isEmpty()) {
             return null;
         }
@@ -52,50 +53,46 @@ public class AnnotationGenerator {
         return createAnnotationNode(GeneratorConstants.CONSTRAINT_NUMBER, annotBody);
     }
 
-    private static List<String> getStringAnnotFields(DataItem dataItem) {
+    private static List<String> getStringAnnotFields(DataItem node) {
 
         List<String> fields = new ArrayList<>();
-        int value = dataItem.getReadLength();
+        int value = node.getReadLength();
         String fieldRef = GeneratorConstants.MAX_LENGTH + GeneratorConstants.COLON + value;
         fields.add(fieldRef);
         return fields;
     }
 
-    private static List<String> getIntAnnotFields(DataItem dataItem) {
+    private static List<String> getIntAnnotFields(DataItem node) {
 
         List<String> fields = new ArrayList<>();
-        if (!dataItem.isSinged()) {
+        if (!node.isSinged()) {
             int minValue = 0;
             String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
             fields.add(fieldRef);
         }
-        int maxDigits = dataItem.getReadLength();
-        //TODO: write a function to generate constraints fields
+        int maxDigits = node.getReadLength();
         String fieldRef = GeneratorConstants.MAX_DIGITS + GeneratorConstants.COLON + maxDigits;
         fields.add(fieldRef);
-
         return fields;
     }
 
-    private static List<String> getNumberAnnotFields(DataItem dataItem) {
+    private static List<String> getNumberAnnotFields(DataItem node) {
 
         List<String> fields = new ArrayList<>();
-
         int maxIntegerDigits = 1;
-        if (dataItem.isSinged()) {
-            maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2;
+        if (node.isSinged()) {
+            maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 2;
         } else {
-            if (dataItem.getPicture().startsWith("-9")) {
-                maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2;
+            if (node.getPicture().startsWith(NEGATIVE_DECIMAL_PIC)) {
+                maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 2;
             } else {
                 int minValue = 0;
                 String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
                 fields.add(fieldRef);
-                maxIntegerDigits = dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1;
+                maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 1;
             }
         }
-        int maxFractionDigits = dataItem.getFloatingPointLength();
-        // TODO: write a function to generate constraints fields
+        int maxFractionDigits = node.getFloatingPointLength();
         String fieldRef = GeneratorConstants.MAX_INTEGER_DIGITS + GeneratorConstants.COLON + maxIntegerDigits;
         fields.add(fieldRef);
         fieldRef = GeneratorConstants.MAX_FRACTION_DIGITS + GeneratorConstants.COLON + maxFractionDigits;
@@ -112,9 +109,6 @@ public class AnnotationGenerator {
         if (expressionNode.kind() == MAPPING_CONSTRUCTOR) {
             annotationBody = (MappingConstructorExpressionNode) expressionNode;
         }
-        return NodeFactory.createAnnotationNode(
-                createToken(AT_TOKEN),
-                annotReference,
-                annotationBody);
+        return NodeFactory.createAnnotationNode(createToken(AT_TOKEN), annotReference, annotationBody);
     }
 }

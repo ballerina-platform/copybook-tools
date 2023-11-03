@@ -25,7 +25,8 @@ import static io.ballerina.tools.copybook.generator.AnnotationGenerator.generate
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ALPHA_NUMERIC_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ARRAY_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.BAL_KEYWORDS;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.COMP;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.BYTE_ARRAY;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.COMP_PIC;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ESCAPE_PATTERN;
@@ -34,6 +35,7 @@ import static io.ballerina.tools.copybook.generator.GeneratorConstants.IMPORT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_IN_BINARY_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_PIC;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SEMICOLON;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_DECIMAL_TYPE;
@@ -56,25 +58,24 @@ public class CodeGeneratorUtils {
         }
     }
 
-    public static String getTypeReferenceName(CopybookNode dataItem, boolean isRecordFieldReference) {
-
-        if (dataItem instanceof DataItem) {
-            if (!isRecordFieldReference) {
-                if (((DataItem) dataItem).isNumeric()) {
-                    if (((DataItem) dataItem).getFloatingPointLength() > 0) {
-                        return "decimal";
-                    }
-                    return "int";
-                } else if (((DataItem) dataItem).getPicture().contains("COMP")) {
-                    return "byte[]";
-                } else {
-                    return "string";
-                }
+    public static String getTypeReferenceName(CopybookNode copybookNode, boolean isRecordFieldReference) {
+        if (copybookNode instanceof DataItem dataItem) {
+            if (isRecordFieldReference) {
+                return extractTypeReferenceName(dataItem);
             } else {
-                return extractTypeReferenceName((DataItem) dataItem);
+                if (dataItem.isNumeric()) {
+                    if (dataItem.getFloatingPointLength() > 0) {
+                        return DECIMAL;
+                    }
+                    return INT;
+                } else if (dataItem.getPicture().contains(COMP_PIC)) {
+                    return BYTE_ARRAY;
+                } else {
+                    return STRING;
+                }
             }
         }
-        return dataItem.getName();
+        return copybookNode.getName();
     }
 
     public static ImportDeclarationNode getImportDeclarationNode(String orgName, String moduleName) {
@@ -88,7 +89,6 @@ public class CodeGeneratorUtils {
         SeparatedNodeList<IdentifierToken> moduleNodeList = AbstractNodeFactory.createSeparatedNodeList(
                 moduleNameToken);
         Token semicolon = AbstractNodeFactory.createIdentifierToken(SEMICOLON);
-
         return NodeFactory.createImportDeclarationNode(importKeyword, importOrgNameNode,
                 moduleNodeList, null, semicolon);
     }
@@ -139,7 +139,7 @@ public class CodeGeneratorUtils {
                     typeName = SIGNED_DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
                             + FLOATING_POINT + dataItem.getFloatingPointLength();
                 } else {
-                    if (dataItem.getPicture().startsWith("-9")) {
+                    if (dataItem.getPicture().startsWith(NEGATIVE_DECIMAL_PIC)) {
                         typeName = NEGATIVE_DECIMAL_TYPE +
                                 (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
                                 + FLOATING_POINT + dataItem.getFloatingPointLength();
@@ -155,8 +155,8 @@ public class CodeGeneratorUtils {
                     typeName = INTEGER_TYPE + dataItem.getReadLength();
                 }
             }
-        } else if (dataItem.getPicture().contains(COMP)) {
-            // TODO: re-write the logic to handle binary values
+        } else if (dataItem.getPicture().contains(COMP_PIC)) {
+            // TODO: implement the binary values handling part
             typeName = INTEGER_IN_BINARY_TYPE;
         } else {
             typeName = ALPHA_NUMERIC_TYPE + dataItem.getReadLength();
