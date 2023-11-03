@@ -16,12 +16,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.COBOL_EXTENSION;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.COPYBOOK_EXTENSION;
@@ -47,10 +44,6 @@ public class CopybookCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-o", "--output"},
             description = "Directory to store the generated Ballerina record types")
     private String outputPath;
-
-    @CommandLine.Option(names = {"-n", "--root-name"},
-            description = "Root record name that includes the Copybook root type")
-    private String rootName;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -111,10 +104,10 @@ public class CopybookCmd implements BLauncherCmd {
     private void executeOperation() throws CopybookTypeGenerationException, CmdException, FormatterException,
             IOException {
         String filePath = argList.get(0);
-        generateType(filePath, rootName);
+        generateType(filePath);
     }
 
-    private void generateType(String filePath, String rootName)
+    private void generateType(String filePath)
             throws CmdException, CopybookTypeGenerationException, FormatterException, IOException {
 
         final File copybookFile = new File(filePath);
@@ -132,15 +125,7 @@ public class CopybookCmd implements BLauncherCmd {
         } catch (IOException e) {
             throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null, e.toString());
         }
-        if (rootName == null) {
-            rootName = getFileName(filePath);
-        }
-        CodeGenerator.generate(copybookFilePath, rootName, getTargetOutputPath(), outStream);
-    }
-
-    private String getFileName(String filePath) {
-        String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
-        return fileName.substring(0, fileName.lastIndexOf('.'));
+        CodeGenerator.generate(copybookFilePath, getTargetOutputPath(), outStream);
     }
 
     private Path getTargetOutputPath() {
@@ -158,13 +143,6 @@ public class CopybookCmd implements BLauncherCmd {
 
     private boolean validInputFileExtension(String filePath) {
         return filePath.endsWith(COPYBOOK_EXTENSION) || filePath.endsWith(COBOL_EXTENSION);
-    }
-
-    protected String readContentWithFormat(Path filePath) throws IOException {
-        Stream<String> schemaLines = Files.lines(filePath);
-        String schemaContent = schemaLines.collect(Collectors.joining(System.getProperty("line.separator")));
-        schemaLines.close();
-        return schemaContent;
     }
 
     private void getCommandUsageInfo() throws IOException {

@@ -32,14 +32,14 @@ public class Utils {
         }
     }
 
-    public static String resolveSchemaFileName(Path outPath, String schemaName) {
+    public static String resolveSchemaFileName(Path outPath, String fileName) {
         if (outPath != null && Files.exists(outPath)) {
             final File[] listFiles = new File(String.valueOf(outPath)).listFiles();
             if (listFiles != null) {
-                schemaName = checkAvailabilityOfGivenName(schemaName, listFiles);
+                fileName = checkAvailabilityOfGivenName(fileName, listFiles);
             }
         }
-        return schemaName;
+        return fileName;
     }
 
     private static String checkAvailabilityOfGivenName(String schemaName, File[] listFiles) {

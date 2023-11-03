@@ -24,16 +24,6 @@ public type AlphaNumeric6 string;
 @constraint:String {maxLength: 1}
 public type AlphaNumeric1 string;
 
-public type Copybook record {
-    HOSPITAL HOSPITAL?;
-    WARD WARD?;
-    PATIENT PATIENT?;
-    SYMPTOM SYMPTOM?;
-    TREATMNT TREATMNT?;
-    DOCTOR DOCTOR?;
-    FACILITY FACILITY?;
-};
-
 public type HOSPITAL record {
     AlphaNumeric20 HOSPNAME?;
     AlphaNumeric30 HOSP\-ADDRESS?;
