@@ -15,6 +15,7 @@ import io.ballerina.lib.copybook.commons.schema.CopybookNode;
 import io.ballerina.lib.copybook.commons.schema.DataItem;
 import io.ballerina.lib.copybook.commons.schema.GroupItem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import static io.ballerina.tools.copybook.generator.AnnotationGenerator.generate
 import static io.ballerina.tools.copybook.generator.AnnotationGenerator.generateStringConstraint;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ALPHA_NUMERIC_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ARRAY_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.BAL_EXTENSION;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.BAL_KEYWORDS;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.BYTE_ARRAY;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.COMP_PIC;
@@ -210,6 +212,12 @@ public class CodeGeneratorUtils {
             }
         }
         return identifier;
+    }
+
+    public static String getFileName(String filePath) {
+        String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+        fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+        return String.join("", fileName, BAL_EXTENSION);
     }
 
 }

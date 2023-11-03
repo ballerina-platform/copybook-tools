@@ -55,4 +55,5 @@ public class GeneratorConstants {
     // File extensions
     public static final String COPYBOOK_EXTENSION = ".cpy";
     public static final String COBOL_EXTENSION = ".cob";
+    public static final String BAL_EXTENSION = ".bal";
 }

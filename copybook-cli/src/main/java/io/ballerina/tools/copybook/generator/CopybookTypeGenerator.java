@@ -23,7 +23,6 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createIdentifierToken;
@@ -32,11 +31,8 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createMetadataNode;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createSimpleNameReferenceNode;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createTypeDefinitionNode;
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLOSE_BRACE_TOKEN;
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.OPEN_BRACE_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.QUESTION_MARK_TOKEN;
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.RECORD_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.SEMICOLON_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.TYPE_KEYWORD;
 import static io.ballerina.tools.copybook.generator.CodeGeneratorUtils.createImportDeclarationNodes;
@@ -53,28 +49,14 @@ public class CopybookTypeGenerator {
         this.fieldTypeDefinitionList = new ArrayList<>();
     }
 
-    public String generateSourceCode(String rootName) throws FormatterException {
+    public String generateSourceCode() throws FormatterException {
 
         List<CopybookNode> typeDefinitions = schema.getTypeDefinitions();
         List<TypeDefinitionNode> typeDefinitionList = new ArrayList<>();
         typeDefinitions.forEach(typeDefinition -> typeDefinitionList.add(generateTypeDefNode(typeDefinition)));
-        fieldTypeDefinitionList.add(generateRootType(rootName, typeDefinitions));
         fieldTypeDefinitionList.addAll(typeDefinitionList);
         String generatedSyntaxTree = Formatter.format(generateSyntaxTree()).toString();
         return Formatter.format(generatedSyntaxTree);
-    }
-
-    private TypeDefinitionNode generateRootType(String rootName, List<CopybookNode> typeDefinitions) {
-
-        List<io.ballerina.compiler.syntax.tree.Node> recordFields = new LinkedList<>();
-        recordFields.addAll(addRecordFields(typeDefinitions));
-        NodeList<io.ballerina.compiler.syntax.tree.Node> fieldNodes =
-                AbstractNodeFactory.createNodeList(recordFields);
-        TypeDescriptorNode typeDescriptorNode = NodeFactory.createRecordTypeDescriptorNode(createToken(RECORD_KEYWORD),
-                createToken(OPEN_BRACE_TOKEN), fieldNodes, null, createToken(CLOSE_BRACE_TOKEN));
-        IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(rootName));
-        return createTypeDefinitionNode(null, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
-                typeName, typeDescriptorNode, createToken(SEMICOLON_TOKEN));
     }
 
     public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<CopybookNode> fields) {
