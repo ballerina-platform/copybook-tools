@@ -69,7 +69,6 @@ tasks.register('copyCopybookCliJar') {
     }
 }
 
-
 copyCopybookCliJar.dependsOn deleteOldCopybookCliJars
 copyCopybookCliJar.dependsOn ":copybook-cli:build"
 build.dependsOn copyCopybookCliJar

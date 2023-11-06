@@ -37,11 +37,6 @@ public class RecordMetadata {
         return restDescriptorNode;
     }
 
-    /**
-     * Record meta data builder class for {@code RecordMetadata}.
-     *
-     * @since 1.4.0
-     */
     public static class Builder {
         private boolean isOpenRecord = false;
         private RecordRestDescriptorNode restDescriptorNode = null;
@@ -49,6 +44,7 @@ public class RecordMetadata {
             this.isOpenRecord = isOpenRecord;
             return this;
         }
+
         public Builder withRestDescriptorNode(RecordRestDescriptorNode restDescriptorNode) {
             this.restDescriptorNode = restDescriptorNode;
             return this;
