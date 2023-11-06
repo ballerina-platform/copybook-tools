@@ -89,9 +89,10 @@ public class CopybookCmd implements BLauncherCmd {
 
         try {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
-                outStream.println(commandUsageInfo);
+                printLongDesc(new StringBuilder());
+                outStream.flush();
                 exitError(this.exitWhenFinish);
+                return;
             }
             validateInputFlags();
             executeOperation();
@@ -110,6 +111,7 @@ public class CopybookCmd implements BLauncherCmd {
         } else {
             getCommandUsageInfo();
             exitError(this.exitWhenFinish);
+            return;
         }
 
         String filePath = argList.get(0);

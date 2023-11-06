@@ -31,14 +31,29 @@ import java.nio.file.Paths;
 import static io.ballerina.tools.copybook.cmd.TestUtils.readContentWithFormat;
 
 public class CopybookCmdTest extends CopybookTest {
+
     @BeforeTest(description = "This will create a new ballerina project for testing below scenarios.")
     public void setupBallerinaProject() throws IOException {
+
         super.setup();
     }
 
     @Test(description = "Test copybook command with help flag")
+    public void testCopybookHelpFlag() throws IOException {
+
+        String[] args = {"-h"};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("ballerina-copybook - Generate Ballerina types for given cobol copybook\n" +
+                "       definitions"));
+    }
+
+    @Test(description = "Test copybook command with help flag")
     public void testCopybookTypeGeneration() throws IOException {
-        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/copybook.cob").toString(),
+
+        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/copybook.cob").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
         new CommandLine(copybookCmd).parseArgs(args);
@@ -54,7 +69,8 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook type generation with multiple root levels")
     public void testTypeGenerationWithMultipleRootLevels() throws IOException {
-        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/hospital.cpy").toString(),
+
+        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/hospital.cpy").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
         new CommandLine(copybookCmd).parseArgs(args);
@@ -70,7 +86,8 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook type generation with multiple root levels")
     public void testTypeGenerationWithRedefines() throws IOException {
-        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/redefine.cpy").toString(),
+
+        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/redefine.cpy").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
         new CommandLine(copybookCmd).parseArgs(args);
@@ -82,5 +99,19 @@ public class CopybookCmdTest extends CopybookTest {
         Assert.assertEquals(expectedSchema, generatedSchema);
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina record types generated successfully and copied to"));
+    }
+
+    @Test(description = "Test copybook type generation with multiple root levels")
+    public void testTypeGenerationForInvalidSchema() throws IOException {
+
+        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/invalid/copybook.cpy").toString(),
+                "-o", tmpDir.toString()};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains(
+                "Copybook types generation failed: Unsupported picture string I(30) found in copybook schema\n" +
+                        "Unsupported picture string I(10) found in copybook schema"));
     }
 }

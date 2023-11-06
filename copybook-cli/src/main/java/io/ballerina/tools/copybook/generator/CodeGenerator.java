@@ -18,7 +18,7 @@
 
 package io.ballerina.tools.copybook.generator;
 
-import io.ballerina.lib.copybook.commons.schema.CopyBook;
+import io.ballerina.lib.copybook.commons.schema.Copybook;
 import io.ballerina.lib.copybook.commons.schema.Schema;
 import io.ballerina.tools.copybook.diagnostic.DiagnosticMessages;
 import io.ballerina.tools.copybook.exception.CopybookTypeGenerationException;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.tools.copybook.generator.CodeGeneratorUtils.getFileName;
 import static io.ballerina.tools.copybook.utils.Utils.createOutputDirectory;
@@ -43,11 +44,11 @@ public abstract class CodeGenerator {
     public static void generate(Path cbFilePath, Path targetOutputPath, PrintStream outStream)
             throws CopybookTypeGenerationException, FormatterException, IOException {
 
-        Schema schema = CopyBook.parse(cbFilePath.toString());
+        Schema schema = Copybook.parse(cbFilePath.toString());
         if (!schema.getErrors().isEmpty()) {
-            List<String> errors = schema.getErrors();
-            throw new CopybookTypeGenerationException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null,
-                    errors.toArray(new String[0]));
+            List<String> errorList = schema.getErrors();
+            String errors = errorList.stream().collect(Collectors.joining(System.lineSeparator()));
+            throw new CopybookTypeGenerationException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null, errors);
         }
         boolean isCreated = createOutputDirectory(targetOutputPath);
         if (!isCreated) {

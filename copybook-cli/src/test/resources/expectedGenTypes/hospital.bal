@@ -9,11 +9,11 @@ public type AlphaNumeric30 string;
 @constraint:String {maxLength: 10}
 public type AlphaNumeric10 string;
 
-@constraint:Int {minValue: 0, maxDigits: 2}
-public type Integer2 int;
+@constraint:String {maxLength: 2}
+public type AlphaNumeric2 string;
 
-@constraint:Int {minValue: 0, maxDigits: 3}
-public type Integer3 int;
+@constraint:String {maxLength: 3}
+public type AlphaNumeric3 string;
 
 @constraint:String {maxLength: 4}
 public type AlphaNumeric4 string;
@@ -32,10 +32,10 @@ public type HOSPITAL record {
 };
 
 public type WARD record {
-    Integer2 WARDNO?;
-    Integer3 TOT\-ROOMS?;
-    Integer3 TOT\-BEDS?;
-    Integer3 BEDAVAIL?;
+    AlphaNumeric2 WARDNO?;
+    AlphaNumeric3 TOT\-ROOMS?;
+    AlphaNumeric3 TOT\-BEDS?;
+    AlphaNumeric3 BEDAVAIL?;
     AlphaNumeric20 WARDTYPE?;
 };
 
@@ -79,6 +79,6 @@ public type DOCTOR record {
 
 public type FACILITY record {
     AlphaNumeric20 FACTYPE?;
-    Integer3 TOT\-FACIL?;
-    Integer3 FACAVAIL?;
+    AlphaNumeric3 TOT\-FACIL?;
+    AlphaNumeric3 FACAVAIL?;
 };

@@ -5,7 +5,7 @@ NAME
 
 SYNOPSIS
        bal copybook [-i | --input] <copybook-definition-file-path>
-                   [-o | --output] <output-location>
+                    [-o | --output] <output-location>
 
 
 DESCRIPTION
@@ -17,7 +17,7 @@ DESCRIPTION
 
 
 OPTIONS
-       -i, --input <copybook-definition-file-path>
+       -i,  --input <copybook-definition-file-path>
             This is a mandatory input. The given copybook definition input will
             generate a Ballerina records types. This generated record types can
             be used as a code template to start the copybook ballerina mapping.
