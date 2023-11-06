@@ -22,10 +22,6 @@ plugins{
     id 'com.github.spotbugs'
 }
 
-configurations {
-    balTools
-}
-
 dependencies {
     implementation group:'org.ballerinalang', name:'ballerina-cli', version:"${ballerinaLangVersion}"
     implementation group:'org.ballerinalang', name:'ballerina-runtime', version:"${ballerinaLangVersion}"
@@ -37,54 +33,13 @@ dependencies {
     implementation group:'io.ballerina.lib', name:'copybook-commons', version:"${copybookParserVersion}"
     implementation group:'org.slf4j', name: 'slf4j-jdk14', version: "${slf4jVersion}"
     implementation group: 'org.antlr', name: 'antlr4-runtime', version: "${antlrVersion}"
-
     testImplementation group:'org.testng', name:'testng', version:"${testngVersion}"
-
-    balTools group:'org.ballerinalang', name:'jballerina-tools', version: "${ballerinaLangVersion}"
 }
 
-def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
-
-tasks.register('jBallerinaPack') {
-    doLast {
-        configurations.balTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            copy {
-                from project.zipTree(artifact.getFile())
-                into new File(project.buildDir, "extracted-distribution/")
-            }
-        }
-    }
-    outputs.dir bDistribution
-}
-
-tasks.register('unpackStdLibs') {
-    dependsOn(jBallerinaPack)
-    doLast {
-        configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            copy {
-                from project.zipTree(artifact.getFile())
-                into new File("${project.buildDir}/extracted-distribution/" + artifact.name + "-zip")
-            }
-        }
-    }
-}
-
-tasks.register('copyStdlibs', Copy) {
-    dependsOn(unpackStdLibs)
-    def ballerinaDist = "$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
-    into ballerinaDist
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    /* Standard Libraries */
-    configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-        def artifactExtractedPath = "${project.buildDir}/extracted-distribution/" + artifact.name + "-zip"
-        into("repo/bala") {
-            from "${artifactExtractedPath}/bala/"
-        }
-        into("repo/cache") {
-            from "${artifactExtractedPath}/cache"
-        }
-    }
+tasks.register('copyAllDependencies', Copy) {
+    //referring to the 'compileClasspath' configuration
+    from configurations.compileClasspath
+    into "$rootDir/copybook-tool/build/libs"
 }
 
 def excludePattern = '**/module-info.java'
@@ -101,24 +56,13 @@ checkstyle {
 tasks.register('copyJar', Copy) {
     dependsOn(jar)
     from "$project.buildDir/libs/copybook-cli-${version}.jar"
-    into "$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib"
-    into "../extracted-distribution/jballerina-tools-${ballerinaLangVersion}/lib/repo/bala"
+    into "$rootDir/copybook-tool/build/libs"
 }
 
 checkstyleMain.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
 checkstyleTest.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
 
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn configurations.balTools
-}
-
 test {
-    dependsOn {
-        copyStdlibs
-    }
-    systemProperty "ballerina.home", bDistribution
-
     useTestNG() {
         suites "src/test/resources/testng.xml"
     }
@@ -150,7 +94,7 @@ compileJava {
     }
 }
 
-copyJar.dependsOn copyStdlibs
 test.dependsOn copyJar
+copyAllDependencies.dependsOn test
 
-build.dependsOn(test)
+build.dependsOn(copyAllDependencies)

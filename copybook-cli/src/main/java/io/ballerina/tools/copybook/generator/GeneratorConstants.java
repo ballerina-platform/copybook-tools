@@ -69,7 +69,6 @@ public class GeneratorConstants {
     public static final String DECIMAL = "decimal";
     public static final String BYTE_ARRAY = "byte[]";
 
-
     // File extensions
     public static final String COPYBOOK_EXTENSION = ".cpy";
     public static final String COBOL_EXTENSION = ".cob";

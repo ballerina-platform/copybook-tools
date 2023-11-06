@@ -167,8 +167,7 @@ public class CopybookCmd implements BLauncherCmd {
         String builder = "ballerina-copybook - Generate Ballerina types for given cobol copybook \n" +
                 "definitions\n\n" +
                 "bal copybook [-i | --input] <copybook-definition-file-path>\n" +
-                "             [-o | --output] <output-location>\n" +
-                "             [-n | --root-name] <root-name>\n\n";
+                "             [-o | --output] <output-location>\n\n";
         outStream.println(builder);
     }
 
