@@ -20,7 +20,7 @@ package io.ballerina.tools.copybook.diagnostic;
 public class Constants {
 
     public static final String MESSAGE_FOR_INVALID_FILE_EXTENSION = "File \"%s\" is invalid. Copybook tool support" +
-            " only the Copybook definition files with .cpy or .cbl extension. %nPlease provide the path of the input " +
+            " only the Copybook definition files with .cpy or .cob extension. %nPlease provide the path of the input " +
             " file with -i or --input flag.%ne.g: bal copybook --input <Copybook Definition File>";
     public static final String MESSAGE_CAN_NOT_READ_COPYBOOK_FILE =
             "Provided Definition file \"%s\" is not allowed to be read";
