@@ -23,7 +23,7 @@ public class Constants {
             " only the Copybook definition files with .cpy or .cob extension. %nPlease provide the path of the input " +
             " file with -i or --input flag.%ne.g: bal copybook --input <Copybook Definition File>";
     public static final String MESSAGE_CAN_NOT_READ_COPYBOOK_FILE =
-            "Provided Definition file \"%s\" is not allowed to be read";
+            "Provided definition file \"%s\" is not allowed to be read";
     public static final String MESSAGE_FOR_INVALID_COPYBOOK_PATH =
-            "The Copybook definition file does not exist in the given path";
+            "The copybook definition file does not exist in the given path";
 }
