@@ -38,12 +38,10 @@ import static io.ballerina.tools.copybook.utils.Utils.writeFile;
 public abstract class CodeGenerator {
 
     protected CodeGenerator() {
-
     }
 
     public static void generate(Path cbFilePath, Path targetOutputPath, PrintStream outStream)
             throws CopybookTypeGenerationException, FormatterException, IOException {
-
         Schema schema = Copybook.parse(cbFilePath.toString());
         if (!schema.getErrors().isEmpty()) {
             List<String> errorList = schema.getErrors();

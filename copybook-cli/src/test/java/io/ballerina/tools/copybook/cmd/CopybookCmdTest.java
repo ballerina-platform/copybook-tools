@@ -34,13 +34,11 @@ public class CopybookCmdTest extends CopybookTest {
 
     @BeforeTest(description = "This will create a new ballerina project for testing below scenarios.")
     public void setupBallerinaProject() throws IOException {
-
         super.setup();
     }
 
     @Test(description = "Test copybook command with help flag")
     public void testCopybookHelpFlag() throws IOException {
-
         String[] args = {"-h"};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
         new CommandLine(copybookCmd).parseArgs(args);
@@ -52,7 +50,6 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook command with help flag")
     public void testCopybookTypeGeneration() throws IOException {
-
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/copybook.cob").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
@@ -69,7 +66,6 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook type generation with multiple root levels")
     public void testTypeGenerationWithMultipleRootLevels() throws IOException {
-
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/hospital.cpy").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
@@ -86,7 +82,6 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook type generation with multiple root levels")
     public void testTypeGenerationWithRedefines() throws IOException {
-
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/redefine.cpy").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
@@ -103,7 +98,6 @@ public class CopybookCmdTest extends CopybookTest {
 
     @Test(description = "Test copybook type generation with multiple root levels")
     public void testTypeGenerationForInvalidSchema() throws IOException {
-
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/invalid/copybook.cpy").toString(),
                 "-o", tmpDir.toString()};
         CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);

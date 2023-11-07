@@ -71,14 +71,12 @@ public class CopybookCmd implements BLauncherCmd {
     }
 
     public CopybookCmd(PrintStream outStream, Path executionDir, boolean exitWhenFinish) {
-
         this.outStream = outStream;
         this.executionPath = executionDir;
         this.exitWhenFinish = exitWhenFinish;
     }
 
     private static void exitError(boolean exit) {
-
         if (exit) {
             Runtime.getRuntime().exit(1);
         }
@@ -86,7 +84,6 @@ public class CopybookCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
-
         try {
             if (helpFlag) {
                 printLongDesc(new StringBuilder());
@@ -103,7 +100,6 @@ public class CopybookCmd implements BLauncherCmd {
     }
 
     private void validateInputFlags() throws CmdException, IOException {
-
         if (inputPathFlag) {
             if (argList == null) {
                 throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_100, null);
@@ -129,7 +125,6 @@ public class CopybookCmd implements BLauncherCmd {
 
     private void generateType(String filePath)
             throws CmdException, CopybookTypeGenerationException, FormatterException, IOException {
-
         final File copybookFile = new File(filePath);
         if (!copybookFile.exists()) {
             throw new CmdException(DiagnosticMessages.COPYBOOK_TYPE_GEN_102, null,
@@ -149,7 +144,6 @@ public class CopybookCmd implements BLauncherCmd {
     }
 
     private Path getTargetOutputPath() {
-
         Path targetOutputPath = executionPath;
         if (this.outputPath != null) {
             if (Paths.get(outputPath).isAbsolute()) {
