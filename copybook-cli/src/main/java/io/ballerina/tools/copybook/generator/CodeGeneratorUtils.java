@@ -50,22 +50,26 @@ import static io.ballerina.tools.copybook.generator.GeneratorConstants.COMP_PIC;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ESCAPE_PATTERN;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.FLOATING_POINT;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL_POINT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.IMPORT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_IN_BINARY_TYPE;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.UNSIGNED_INTEGER_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_PIC;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.POSITIVE_DECIMAL_PIC;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SEMICOLON;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_INTEGER_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SLASH;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.STRING;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.UNSIGNED_DECIMAL_TYPE;
 
 public class CodeGeneratorUtils {
 
     public static final MinutiaeList SINGLE_WS_MINUTIAE = getSingleWSMinutiae();
+
+    private CodeGeneratorUtils() {
+    }
 
     public static TypeGenerator getTypeGenerator(CopybookNode schemaValue) {
 
@@ -79,6 +83,7 @@ public class CodeGeneratorUtils {
     }
 
     public static String getTypeReferenceName(CopybookNode copybookNode, boolean isRecordFieldReference) {
+
         if (copybookNode instanceof DataItem dataItem) {
             if (isRecordFieldReference) {
                 return extractTypeReferenceName(dataItem);
@@ -157,22 +162,22 @@ public class CodeGeneratorUtils {
             if (dataItem.getFloatingPointLength() > 0) {
                 if (dataItem.isSinged()) {
                     typeName = SIGNED_DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
-                            + FLOATING_POINT + dataItem.getFloatingPointLength();
+                            + DECIMAL_POINT + dataItem.getFloatingPointLength();
+                } else if (dataItem.getPicture().startsWith(NEGATIVE_DECIMAL_PIC) ||
+                        dataItem.getPicture().startsWith(POSITIVE_DECIMAL_PIC)) {
+                    typeName = DECIMAL_TYPE +
+                            (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
+                            + DECIMAL_POINT + dataItem.getFloatingPointLength();
                 } else {
-                    if (dataItem.getPicture().startsWith(NEGATIVE_DECIMAL_PIC)) {
-                        typeName = NEGATIVE_DECIMAL_TYPE +
-                                (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
-                                + FLOATING_POINT + dataItem.getFloatingPointLength();
-                    } else {
-                        typeName = DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1) +
-                                FLOATING_POINT + dataItem.getFloatingPointLength();
-                    }
+                    typeName = UNSIGNED_DECIMAL_TYPE +
+                            (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1) +
+                            DECIMAL_POINT + dataItem.getFloatingPointLength();
                 }
             } else {
                 if (dataItem.isSinged()) {
                     typeName = SIGNED_INTEGER_TYPE + dataItem.getReadLength();
                 } else {
-                    typeName = INTEGER_TYPE + dataItem.getReadLength();
+                    typeName = UNSIGNED_INTEGER_TYPE + dataItem.getReadLength();
                 }
             }
         } else if (dataItem.getPicture().contains(COMP_PIC)) {
@@ -233,6 +238,7 @@ public class CodeGeneratorUtils {
     }
 
     public static String getFileName(String filePath) {
+
         String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
         fileName = fileName.substring(0, fileName.lastIndexOf('.'));
         return String.join("", fileName, BAL_EXTENSION);

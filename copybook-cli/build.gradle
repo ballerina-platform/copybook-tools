@@ -94,7 +94,5 @@ compileJava {
     }
 }
 
-test.dependsOn copyJar
-copyAllDependencies.dependsOn test
-
+copyAllDependencies.dependsOn copyJar
 build.dependsOn(copyAllDependencies)

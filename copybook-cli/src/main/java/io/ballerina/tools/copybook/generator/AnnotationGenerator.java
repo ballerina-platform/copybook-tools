@@ -98,17 +98,14 @@ public class AnnotationGenerator {
 
         List<String> fields = new ArrayList<>();
         int maxIntegerDigits = 1;
-        if (node.isSinged()) {
+        if (node.isSinged() || node.getPicture().startsWith(NEGATIVE_DECIMAL_PIC) || node.getPicture().startsWith(
+                GeneratorConstants.POSITIVE_DECIMAL_PIC)) {
             maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 2;
         } else {
-            if (node.getPicture().startsWith(NEGATIVE_DECIMAL_PIC)) {
-                maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 2;
-            } else {
-                int minValue = 0;
-                String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
-                fields.add(fieldRef);
-                maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 1;
-            }
+            int minValue = 0;
+            String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
+            fields.add(fieldRef);
+            maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 1;
         }
         int maxFractionDigits = node.getFloatingPointLength();
         String fieldRef = GeneratorConstants.MAX_INTEGER_DIGITS + GeneratorConstants.COLON + maxIntegerDigits;

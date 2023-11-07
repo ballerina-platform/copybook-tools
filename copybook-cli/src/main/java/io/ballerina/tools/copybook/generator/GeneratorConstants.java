@@ -52,15 +52,16 @@ public class GeneratorConstants {
 
     // Copybook types
     public static final String SIGNED_DECIMAL_TYPE = "SignedDecimal";
-    public static final String NEGATIVE_DECIMAL_TYPE = "NegativeDecimal";
+    public static final String UNSIGNED_DECIMAL_TYPE = "UnsignedDecimal";
     public static final String DECIMAL_TYPE = "Decimal";
     public static final String SIGNED_INTEGER_TYPE = "SignedInteger";
-    public static final String INTEGER_TYPE = "Integer";
+    public static final String UNSIGNED_INTEGER_TYPE = "UnsignedInteger";
     public static final String ALPHA_NUMERIC_TYPE = "AlphaNumeric";
     public static final String INTEGER_IN_BINARY_TYPE = "IntegerInBinary";
     public static final String ARRAY_TYPE = "Array";
-    public static final String FLOATING_POINT = "V";
+    public static final String DECIMAL_POINT = "V";
     public static final String NEGATIVE_DECIMAL_PIC = "-9";
+    public static final String POSITIVE_DECIMAL_PIC = "+9";
     public static final String COMP_PIC = "COMP";
 
     // Ballerina types
