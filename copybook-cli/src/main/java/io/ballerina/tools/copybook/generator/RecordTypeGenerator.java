@@ -45,12 +45,11 @@ public class RecordTypeGenerator extends TypeGenerator {
     GroupItem groupItemNode;
 
     public RecordTypeGenerator(GroupItem groupItemNode) {
-
         this.groupItemNode = groupItemNode;
     }
 
-    @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
-
+    @Override
+    public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
         List<Node> recordFields = new LinkedList<>();
         RecordMetadata metadataBuilder = getRecordMetadata();
         List<CopybookNode> fields = groupItemNode.getChildren();
@@ -63,7 +62,6 @@ public class RecordTypeGenerator extends TypeGenerator {
     }
 
     public List<Node> addRecordFields(List<CopybookNode> fields, List<TypeDefinitionNode> typeDefList) {
-
         List<Node> recordFieldList = new ArrayList<>();
         for (CopybookNode field : fields) {
             String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(field.getName().trim());

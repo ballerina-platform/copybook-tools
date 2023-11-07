@@ -72,39 +72,33 @@ public class CodeGeneratorUtils {
     }
 
     public static TypeGenerator getTypeGenerator(CopybookNode schemaValue) {
-
         if (schemaValue.getOccurringCount() > 0) {
             return new ArrayTypeGenerator(schemaValue);
         } else if (schemaValue instanceof DataItem dataItem) {
             return new ReferencedTypeGenerator(dataItem);
-        } else {
-            return new RecordTypeGenerator((GroupItem) schemaValue);
         }
+        return new RecordTypeGenerator((GroupItem) schemaValue);
     }
 
     public static String getTypeReferenceName(CopybookNode copybookNode, boolean isRecordFieldReference) {
-
         if (copybookNode instanceof DataItem dataItem) {
             if (isRecordFieldReference) {
                 return extractTypeReferenceName(dataItem);
-            } else {
-                if (dataItem.isNumeric()) {
-                    if (dataItem.getFloatingPointLength() > 0) {
-                        return DECIMAL;
-                    }
-                    return INT;
-                } else if (dataItem.getPicture().contains(COMP_PIC)) {
-                    return BYTE_ARRAY;
-                } else {
-                    return STRING;
-                }
             }
+            if (dataItem.isNumeric()) {
+                if (dataItem.getFloatingPointLength() > 0) {
+                    return DECIMAL;
+                }
+                return INT;
+            } else if (dataItem.getPicture().contains(COMP_PIC)) {
+                return BYTE_ARRAY;
+            }
+            return STRING;
         }
         return copybookNode.getName();
     }
 
     public static ImportDeclarationNode getImportDeclarationNode(String orgName, String moduleName) {
-
         Token importKeyword = AbstractNodeFactory.createIdentifierToken(IMPORT, SINGLE_WS_MINUTIAE,
                 SINGLE_WS_MINUTIAE);
         Token orgNameToken = AbstractNodeFactory.createIdentifierToken(orgName);
@@ -119,7 +113,6 @@ public class CodeGeneratorUtils {
     }
 
     public static NodeList<ImportDeclarationNode> createImportDeclarationNodes() {
-
         List<ImportDeclarationNode> imports = new ArrayList<>();
         ImportDeclarationNode importForHttp = CodeGeneratorUtils.getImportDeclarationNode(GeneratorConstants.BALLERINA,
                 GeneratorConstants.CONSTRAINT);
@@ -128,25 +121,21 @@ public class CodeGeneratorUtils {
     }
 
     private static MinutiaeList getSingleWSMinutiae() {
-
         Minutiae whitespace = AbstractNodeFactory.createWhitespaceMinutiae(" ");
         return AbstractNodeFactory.createMinutiaeList(whitespace);
     }
 
     public static AnnotationNode generateConstraintNode(DataItem dataItem) {
-
         String ballerinaType = getConstraintType(dataItem);
         if (ballerinaType.equals(DECIMAL)) {
             return generateNumberConstraint(dataItem);
         } else if (ballerinaType.equals(INT)) {
             return generateIntConstraint(dataItem);
-        } else {
-            return generateStringConstraint(dataItem);
         }
+        return generateStringConstraint(dataItem);
     }
 
     private static String getConstraintType(DataItem dataItem) {
-
         if (dataItem.isNumeric() && dataItem.getFloatingPointLength() > 0) {
             return DECIMAL;
         } else if (dataItem.isNumeric()) {
@@ -156,7 +145,6 @@ public class CodeGeneratorUtils {
     }
 
     public static String extractTypeReferenceName(DataItem dataItem) {
-
         String typeName = null;
         if (dataItem.isNumeric()) {
             if (dataItem.getFloatingPointLength() > 0) {
@@ -193,7 +181,6 @@ public class CodeGeneratorUtils {
     }
 
     public static String getValidName(String identifier) {
-
         if (!identifier.matches("\\b[0-9]*\\b")) {
             String[] split = identifier.split(GeneratorConstants.SPECIAL_CHAR_REGEX);
             StringBuilder validName = new StringBuilder();
@@ -208,7 +195,6 @@ public class CodeGeneratorUtils {
     }
 
     public static String escapeIdentifier(String identifier) {
-
         if (identifier.matches("\\b[0-9]*\\b")) {
             return "'" + identifier;
         } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")
@@ -238,7 +224,6 @@ public class CodeGeneratorUtils {
     }
 
     public static String getFileName(String filePath) {
-
         String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
         fileName = fileName.substring(0, fileName.lastIndexOf('.'));
         return String.join("", fileName, BAL_EXTENSION);

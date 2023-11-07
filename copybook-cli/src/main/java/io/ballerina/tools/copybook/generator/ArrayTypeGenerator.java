@@ -50,8 +50,8 @@ public class ArrayTypeGenerator extends TypeGenerator {
         this.schemaValue = groupItemNode;
     }
 
-    @Override public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
-
+    @Override
+    public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
         if (schemaValue instanceof GroupItem) {
             return getGroputItemDescriptorNode(typeDefList);
         } else {
@@ -60,7 +60,6 @@ public class ArrayTypeGenerator extends TypeGenerator {
     }
 
     private TypeDescriptorNode getGroputItemDescriptorNode(List<TypeDefinitionNode> typeDefList) {
-
         BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
                 createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
                         String.valueOf(schemaValue.getOccurringCount()),
@@ -75,7 +74,6 @@ public class ArrayTypeGenerator extends TypeGenerator {
     }
 
     private TypeDescriptorNode getDataItemDescriptorNode(List<TypeDefinitionNode> typeDefList) {
-
         TypeDefinitionNode fieldType = generateFieldTypeDefNode(
                 (DataItem) schemaValue, getTypeReferenceName(schemaValue, false));
         addToFieldTypeDefinitionList(fieldType, typeDefList);

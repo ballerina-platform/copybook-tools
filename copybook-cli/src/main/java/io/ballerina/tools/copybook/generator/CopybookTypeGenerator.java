@@ -62,13 +62,11 @@ public class CopybookTypeGenerator {
     private final List<TypeDefinitionNode> fieldTypeDefinitionList;
 
     public CopybookTypeGenerator(Schema schema) {
-
         this.schema = schema;
         this.fieldTypeDefinitionList = new ArrayList<>();
     }
 
     public String generateSourceCode() throws FormatterException {
-
         List<CopybookNode> typeDefinitions = schema.getTypeDefinitions();
         List<TypeDefinitionNode> typeDefinitionList = new ArrayList<>();
         typeDefinitions.forEach(typeDefinition -> typeDefinitionList.add(generateTypeDefNode(typeDefinition)));
@@ -78,7 +76,6 @@ public class CopybookTypeGenerator {
     }
 
     public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<CopybookNode> fields) {
-
         List<io.ballerina.compiler.syntax.tree.Node> recordFieldList = new ArrayList<>();
         for (CopybookNode fieldNode : fields) {
             String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(fieldNode.getName().trim());
@@ -92,7 +89,6 @@ public class CopybookTypeGenerator {
     }
 
     public TypeDefinitionNode generateTypeDefNode(CopybookNode node) {
-
         IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
                 node.getName().trim()));
         TypeDescriptorNode typeDescriptorNode = getTypeDescriptorNode(node);
@@ -117,7 +113,6 @@ public class CopybookTypeGenerator {
     }
 
     public SyntaxTree generateSyntaxTree() {
-
         NodeList<ImportDeclarationNode> imports = createImportDeclarationNodes();
         NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
                 fieldTypeDefinitionList.toArray(new TypeDefinitionNode[0]));
@@ -129,7 +124,6 @@ public class CopybookTypeGenerator {
     }
 
     public static void addToFieldTypeDefinitionList(TypeDefinitionNode node, List<TypeDefinitionNode> typeDefList) {
-
         boolean isExist = typeDefList.stream().anyMatch(typeDefinitionNode ->
                 typeDefinitionNode.typeName().toString().equals(node.typeName().toString()));
         if (!isExist) {

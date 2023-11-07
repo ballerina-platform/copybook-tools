@@ -39,7 +39,6 @@ import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_
 public class AnnotationGenerator {
 
     public static AnnotationNode generateStringConstraint(DataItem node) {
-
         List<String> fields = getStringAnnotFields(node);
         if (fields.isEmpty()) {
             return null;
@@ -50,7 +49,6 @@ public class AnnotationGenerator {
     }
 
     public static AnnotationNode generateIntConstraint(DataItem node) {
-
         List<String> fields = getIntAnnotFields(node);
         if (fields.isEmpty()) {
             return null;
@@ -61,7 +59,6 @@ public class AnnotationGenerator {
     }
 
     public static AnnotationNode generateNumberConstraint(DataItem node) {
-
         List<String> fields = getNumberAnnotFields(node);
         if (fields.isEmpty()) {
             return null;
@@ -72,7 +69,6 @@ public class AnnotationGenerator {
     }
 
     private static List<String> getStringAnnotFields(DataItem node) {
-
         List<String> fields = new ArrayList<>();
         int value = node.getReadLength();
         String fieldRef = GeneratorConstants.MAX_LENGTH + GeneratorConstants.COLON + value;
@@ -81,7 +77,6 @@ public class AnnotationGenerator {
     }
 
     private static List<String> getIntAnnotFields(DataItem node) {
-
         List<String> fields = new ArrayList<>();
         if (!node.isSinged()) {
             int minValue = 0;
@@ -95,11 +90,12 @@ public class AnnotationGenerator {
     }
 
     private static List<String> getNumberAnnotFields(DataItem node) {
-
         List<String> fields = new ArrayList<>();
         int maxIntegerDigits = 1;
-        if (node.isSinged() || node.getPicture().startsWith(NEGATIVE_DECIMAL_PIC) || node.getPicture().startsWith(
-                GeneratorConstants.POSITIVE_DECIMAL_PIC)) {
+        if (node.isSinged()) {
+            maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 1;
+        } else if (node.getPicture().startsWith(NEGATIVE_DECIMAL_PIC) ||
+                node.getPicture().startsWith(GeneratorConstants.POSITIVE_DECIMAL_PIC)) {
             maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 2;
         } else {
             int minValue = 0;
@@ -116,10 +112,9 @@ public class AnnotationGenerator {
     }
 
     public static AnnotationNode createAnnotationNode(String annotationReference, String annotFields) {
-
         MappingConstructorExpressionNode annotationBody = null;
-        SimpleNameReferenceNode annotReference = createSimpleNameReferenceNode(
-                createIdentifierToken(annotationReference));
+        SimpleNameReferenceNode annotReference =
+                createSimpleNameReferenceNode(createIdentifierToken(annotationReference));
         ExpressionNode expressionNode = NodeParser.parseExpression(annotFields);
         if (expressionNode.kind() == MAPPING_CONSTRUCTOR) {
             annotationBody = (MappingConstructorExpressionNode) expressionNode;

@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TestUtils {
+
+    private TestUtils() {
+    }
+
     protected static String readContentWithFormat(Path filePath) throws IOException {
         Stream<String> schemaLines = Files.lines(filePath);
         String schemaContent = schemaLines.collect(Collectors.joining(System.getProperty("line.separator")));

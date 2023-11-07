@@ -35,7 +35,6 @@ public class ReferencedTypeGenerator extends TypeGenerator {
     DataItem fieldSchema;
 
     public ReferencedTypeGenerator(DataItem fieldSchema) {
-
         this.fieldSchema = fieldSchema;
     }
 
@@ -44,7 +43,6 @@ public class ReferencedTypeGenerator extends TypeGenerator {
      */
     @Override
     public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
-
         String extractName = getTypeReferenceName(fieldSchema, true);
         String typeName = CodeGeneratorUtils.getValidName(extractName);
         TypeDefinitionNode fieldType = generateFieldTypeDefNode(fieldSchema, getTypeReferenceName(fieldSchema, false));

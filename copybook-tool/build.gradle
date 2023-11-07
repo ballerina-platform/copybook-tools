@@ -16,9 +16,7 @@
  */
 import org.apache.tools.ant.taskdefs.condition.Os
 
-version stripBallerinaExtensionVersion("${project.version}")
-
-description = 'Ballerina - Copybook took package'
+description = 'Ballerina - Copybook tool package'
 
 def packageName = "copybook"
 def packageOrg = "ballerina"
@@ -34,8 +32,9 @@ tasks.register('updateTomlFiles') {
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
         ballerinaTomlFile.text = newConfig
 
-        def newToolConfig = balToolTomlFilePlaceHolder.text.replace("@project.version@", project.version)
-        newToolConfig = newToolConfig.replace("@toml.version@", tomlVersion)
+        def newToolConfig = balToolTomlFilePlaceHolder.text.replace("@project.version@", version)
+        newToolConfig = newToolConfig.replace("@toml.antlrVersion@", antlrVersion)
+        newToolConfig = newToolConfig.replace("@toml.copybookParserVersion@", copybookParserVersion)
         balToolTomlFile.text = newToolConfig
     }
 }
@@ -71,4 +70,6 @@ tasks.register('copyCopybookCliJar') {
 
 copyCopybookCliJar.dependsOn deleteOldCopybookCliJars
 copyCopybookCliJar.dependsOn ":copybook-cli:build"
+commitTomlFiles.dependsOn updateTomlFiles
+copyCopybookCliJar.dependsOn commitTomlFiles
 build.dependsOn copyCopybookCliJar
