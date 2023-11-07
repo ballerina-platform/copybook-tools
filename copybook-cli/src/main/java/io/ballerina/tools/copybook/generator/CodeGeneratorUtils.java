@@ -67,6 +67,9 @@ public class CodeGeneratorUtils {
 
     public static final MinutiaeList SINGLE_WS_MINUTIAE = getSingleWSMinutiae();
 
+    private CodeGeneratorUtils() {
+    }
+
     public static TypeGenerator getTypeGenerator(CopybookNode schemaValue) {
 
         if (schemaValue.getOccurringCount() > 0) {

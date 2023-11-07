@@ -201,6 +201,7 @@ public class CopybookCmd implements BLauncherCmd {
             while ((content = br.readLine()) != null) {
                 outStream.append('\n').append(content);
             }
+            outStream.append('\n');
         } catch (IOException ignore) {
         }
     }

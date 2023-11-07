@@ -34,6 +34,9 @@ import static io.ballerina.tools.copybook.generator.GeneratorConstants.PERIOD;
 
 public class Utils {
 
+    private Utils() {
+    }
+
     public static boolean createOutputDirectory(Path outputPath) {
         File outputDir = new File(outputPath.toString());
         if (!outputDir.exists()) {
