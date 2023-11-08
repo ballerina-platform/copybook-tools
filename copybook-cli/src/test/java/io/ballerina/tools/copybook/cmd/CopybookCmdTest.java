@@ -105,7 +105,8 @@ public class CopybookCmdTest extends CopybookTest {
         copybookCmd.execute();
         String output = readOutput(true);
         Assert.assertTrue(output.contains(
-                "Copybook types generation failed: Unsupported picture string I(30) found in copybook schema\n" +
-                        "Unsupported picture string I(10) found in copybook schema"));
+                "Copybook types generation failed: " +
+                        "Error at line 3, column 28: Unsupported picture string I(30) found in copybook schema\n" +
+                        "Error at line 4, column 28: Unsupported picture string I(10) found in copybook schema"));
     }
 }

@@ -44,8 +44,7 @@ public abstract class CopybookTest {
     }
 
     protected String readOutput(boolean enableLog) throws IOException {
-        String output = "";
-        output = this.console.toString();
+        String output = this.console.toString();
         this.console.close();
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
