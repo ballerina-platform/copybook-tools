@@ -22,6 +22,8 @@ jobs:
           WORKING_DIR: ./copybook-cli
         run: |
           ./gradlew build --stacktrace --console=plain
+      - name: Generate Codecov Report
+        uses: codecov/codecov-action@v2
 
   windows-build:
 
