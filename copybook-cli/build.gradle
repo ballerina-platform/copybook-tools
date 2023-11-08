@@ -17,7 +17,7 @@
  */
 
 plugins{
-    id 'java'
+    id 'java-library'
     id 'checkstyle'
     id 'com.github.spotbugs'
 }
@@ -59,6 +59,20 @@ tasks.register('copyJar', Copy) {
     into "$rootDir/copybook-tool/build/libs"
 }
 
+jacoco {
+    toolVersion = "${jacocoVersion}"
+}
+
+jacocoTestReport {
+    dependsOn test
+    def classFiles = new File("${rootDir}/copybook-cli/build/classes/java/main/io/ballerina/tools/copybook")
+    additionalClassDirs(classFiles)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
 checkstyleMain.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
 checkstyleTest.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
 
@@ -66,6 +80,20 @@ test {
     useTestNG() {
         suites "src/test/resources/testng.xml"
     }
+
+    testLogging.showStandardStreams = true
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
+    finalizedBy jacocoTestReport
 }
 
 spotbugsMain {

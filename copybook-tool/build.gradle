@@ -52,24 +52,5 @@ tasks.register('commitTomlFiles') {
     }
 }
 
-tasks.register('deleteOldCopybookCliJars', Delete) {
-    delete fileTree(dir: 'resources').matching {
-        include 'copybook-cli-*.jar'
-    }
-}
-
-tasks.register('copyCopybookCliJar') {
-    doLast {
-        copy {
-            from "../copybook-cli/build/libs/copybook-cli-${version}.jar"
-            into "resources"
-            include "*.jar"
-        }
-    }
-}
-
-copyCopybookCliJar.dependsOn deleteOldCopybookCliJars
-copyCopybookCliJar.dependsOn ":copybook-cli:build"
 commitTomlFiles.dependsOn updateTomlFiles
-copyCopybookCliJar.dependsOn commitTomlFiles
-build.dependsOn copyCopybookCliJar
+build.dependsOn commitTomlFiles

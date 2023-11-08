@@ -21,6 +21,8 @@ allprojects {
     version = project.version
     apply plugin: 'checkstyle'
     apply plugin: 'maven-publish'
+    apply plugin: 'java-library'
+    apply plugin: 'jacoco'
 
     repositories {
         mavenLocal()
@@ -59,8 +61,29 @@ def stripBallerinaExtensionVersion(String extVersion) {
     }
 }
 
+tasks.register('codeCoverageReport', JacocoReport) {
+    dependsOn = subprojects.test
+
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/coverage-reports/*.exec")
+
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = true
+        xml.destination(new File("${buildDir}/reports/jacoco/report.xml"))
+        html.destination(new File("${buildDir}/reports/jacoco/report.html"))
+        csv.destination(new File("${buildDir}/reports/jacoco/report.csv"))
+    }
+
+    onlyIf = {
+        true
+    }
+}
+
 subprojects {
-    apply plugin: 'java'
     configurations {
         ballerinaStdLibs
     }
