@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.tools.copybook.cmd.TestUtils.WHITESPACE_REGEX;
 import static io.ballerina.tools.copybook.cmd.TestUtils.readContentWithFormat;
 
 public class CopybookCmdTest extends CopybookTest {
@@ -104,9 +105,12 @@ public class CopybookCmdTest extends CopybookTest {
         new CommandLine(copybookCmd).parseArgs(args);
         copybookCmd.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains(
-                "Copybook types generation failed: " +
-                        "Error at line 3, column 28: Unsupported picture string I(30) found in copybook schema\n" +
-                        "Error at line 4, column 28: Unsupported picture string I(10) found in copybook schema"));
+        String message = "Copybook types generation failed: " +
+                "Error at line 3, column 28: Unsupported picture string I(30) found in copybook schema\n" +
+                "Error at line 4, column 28: Unsupported picture string I(10) found in copybook schema";
+        // Replace following as Windows environment requirement
+        output = (output.trim()).replaceAll(WHITESPACE_REGEX, "");
+        message = (message.trim()).replaceAll(WHITESPACE_REGEX, "");
+        Assert.assertTrue(output.contains(message));
     }
 }

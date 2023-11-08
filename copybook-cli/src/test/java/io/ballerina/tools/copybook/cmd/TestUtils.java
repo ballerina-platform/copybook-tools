@@ -26,6 +26,8 @@ import java.util.stream.Stream;
 
 public class TestUtils {
 
+    public static final String WHITESPACE_REGEX = "\\s+";
+
     private TestUtils() {
     }
 
