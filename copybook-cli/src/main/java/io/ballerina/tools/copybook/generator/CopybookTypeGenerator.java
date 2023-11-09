@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -50,7 +49,6 @@ import static io.ballerina.compiler.syntax.tree.NodeFactory.createMetadataNode;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createSimpleNameReferenceNode;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createTypeDefinitionNode;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.QUESTION_MARK_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.SEMICOLON_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.TYPE_KEYWORD;
 import static io.ballerina.tools.copybook.generator.CodeGeneratorUtils.createImportDeclarationNodes;
@@ -73,19 +71,6 @@ public class CopybookTypeGenerator {
         fieldTypeDefinitionList.addAll(typeDefinitionList);
         String generatedSyntaxTree = Formatter.format(generateSyntaxTree()).toString();
         return Formatter.format(generatedSyntaxTree);
-    }
-
-    public List<io.ballerina.compiler.syntax.tree.Node> addRecordFields(List<CopybookNode> fields) {
-        List<io.ballerina.compiler.syntax.tree.Node> recordFieldList = new ArrayList<>();
-        for (CopybookNode fieldNode : fields) {
-            String fieldNameStr = CodeGeneratorUtils.escapeIdentifier(fieldNode.getName().trim());
-            IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameStr);
-            TypeDescriptorNode typeDescriptorNode = createSimpleNameReferenceNode(createIdentifierToken(fieldNameStr));
-            RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                    typeDescriptorNode, fieldName, createToken(QUESTION_MARK_TOKEN), createToken(SEMICOLON_TOKEN));
-            recordFieldList.add(recordFieldNode);
-        }
-        return recordFieldList;
     }
 
     public TypeDefinitionNode generateTypeDefNode(CopybookNode node) {

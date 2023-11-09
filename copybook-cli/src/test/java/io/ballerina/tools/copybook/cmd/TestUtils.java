@@ -18,6 +18,8 @@
 
 package io.ballerina.tools.copybook.cmd;
 
+import org.testng.Assert;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,5 +38,12 @@ public class TestUtils {
         String schemaContent = schemaLines.collect(Collectors.joining(System.getProperty("line.separator")));
         schemaLines.close();
         return schemaContent;
+    }
+
+    protected static void assertStringsWithoutWhiteSpace(String output, String expected) {
+        // Replace following as Windows environment requirement
+        String actualString = output.replaceAll(WHITESPACE_REGEX, "");
+        String expectedString = expected.replaceAll(WHITESPACE_REGEX, "");
+        Assert.assertTrue(actualString.contains(expectedString));
     }
 }

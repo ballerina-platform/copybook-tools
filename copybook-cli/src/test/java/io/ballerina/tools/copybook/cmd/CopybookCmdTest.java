@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.tools.copybook.cmd.TestUtils.WHITESPACE_REGEX;
+import static io.ballerina.tools.copybook.cmd.TestUtils.assertStringsWithoutWhiteSpace;
 import static io.ballerina.tools.copybook.cmd.TestUtils.readContentWithFormat;
 
 public class CopybookCmdTest extends CopybookTest {
@@ -45,8 +45,55 @@ public class CopybookCmdTest extends CopybookTest {
         new CommandLine(copybookCmd).parseArgs(args);
         copybookCmd.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("ballerina-copybook - Generate Ballerina types for given cobol copybook\n" +
-                "       definitions"));
+        String message = "ballerina-copybook - Generate Ballerina types for given cobol copybook definitions";
+        assertStringsWithoutWhiteSpace(output, message);
+    }
+
+    @Test(description = "Test copybook command without arguments")
+    public void testCopybookCmdUsage() throws IOException {
+        String[] args = {""};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        String output = readOutput(true);
+        String message = "ballerina-copybook - Generate Ballerina types for given cobol copybook definitions bal" +
+                "copybook [-i | --input] <copybook-definition-file-path> [-o | --output] <output-location>";
+        assertStringsWithoutWhiteSpace(output, message);
+    }
+
+    @Test(description = "Test copybook command with invalid file extension")
+    public void testCopybookWithInvalidFileExtension() throws IOException {
+        String[] args = {"-i", resourceDir.resolve("expectedGenTypes/copybook.bal").toString()};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        String output = readOutput(true);
+        String message = "Copybook tool support only the Copybook definition files with .cpy or .cob extension." +
+                "Please provide the path of the input  file with -i or --input flag.";
+        assertStringsWithoutWhiteSpace(output, message);
+    }
+
+    @Test(description = "Test copybook command with invalid file")
+    public void testCopybookWithInvalidFile() throws IOException {
+        String[] args = {"-i", resourceDir.resolve("expectedGenTypes/cob.cpy").toString()};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        String output = readOutput(true);
+        String message = "The copybook definition file does not exist in the given path";
+        assertStringsWithoutWhiteSpace(output, message);
+    }
+
+    @Test(description = "Test copybook command without arguments")
+    public void testCopybookWithoutArguments() throws IOException {
+        String[] args = {"-i"};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        String output = readOutput(true);
+        String message = "The input file path argument is missing. Please provide the path of the Copybook definition" +
+                " file with -i or --input flag.";
+        assertStringsWithoutWhiteSpace(output, message);
     }
 
     @Test(description = "Test copybook command with help flag")
@@ -108,9 +155,6 @@ public class CopybookCmdTest extends CopybookTest {
         String message = "Copybook types generation failed: " +
                 "Error at line 3, column 28: Unsupported picture string I(30) found in copybook schema\n" +
                 "Error at line 4, column 28: Unsupported picture string I(10) found in copybook schema";
-        // Replace following as Windows environment requirement
-        output = (output.trim()).replaceAll(WHITESPACE_REGEX, "");
-        message = (message.trim()).replaceAll(WHITESPACE_REGEX, "");
-        Assert.assertTrue(output.contains(message));
+        assertStringsWithoutWhiteSpace(output, message);
     }
 }
