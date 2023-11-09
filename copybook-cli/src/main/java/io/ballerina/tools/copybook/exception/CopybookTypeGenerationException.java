@@ -27,11 +27,6 @@ import io.ballerina.tools.diagnostics.Location;
 public class CopybookTypeGenerationException extends Exception {
     private final Diagnostic diagnostic;
 
-    public CopybookTypeGenerationException(DiagnosticMessages diagnosticMessage, Location location) {
-        super(diagnosticMessage.getDescription());
-        this.diagnostic = createDiagnostic(diagnosticMessage, location);
-    }
-
     public CopybookTypeGenerationException(DiagnosticMessages diagnosticMessage, Location location, String... args) {
         super(generateDescription(diagnosticMessage, args));
         this.diagnostic = createDiagnostic(diagnosticMessage, location, args);
