@@ -27,7 +27,7 @@ public class GeneratorConstants {
     private GeneratorConstants() {
     }
 
-    public static final String SPECIAL_CHAR_REGEX = "([\\[\\]\\\\?!<>@#&~`*\\=^+();:\\/\\_{}\\s|.$])";
+    public static final String SPECIAL_CHAR_REGEX = "([\\[\\]\\\\?!<>@#&~`*\\=^+();:\\/\\{}\\s|.$])";
     public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*\\-=^+();:\\/\\_{}\\s|.$])";
 
     public static final List<String> BAL_KEYWORDS = SyntaxInfo.keywords();
