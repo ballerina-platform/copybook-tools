@@ -62,7 +62,7 @@ public class CopybookCmdTest extends CopybookTest {
         String generatedSchema = readContentWithFormat(this.tmpDir.resolve("copybook.bal"));
         Assert.assertEquals(expectedSchema, generatedSchema);
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina record types generated successfully and copied to"));
+        Assert.assertTrue(output.contains("Ballerina record types are generated successfully and copied to"));
     }
 
     @Test(description = "Test copybook type generation with multiple root levels")
@@ -78,7 +78,7 @@ public class CopybookCmdTest extends CopybookTest {
         String generatedSchema = readContentWithFormat(this.tmpDir.resolve("hospital.bal"));
         Assert.assertEquals(expectedSchema, generatedSchema);
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina record types generated successfully and copied to"));
+        Assert.assertTrue(output.contains("Ballerina record types are generated successfully and copied to"));
     }
 
     @Test(description = "Test copybook type generation with multiple root levels")
@@ -94,7 +94,7 @@ public class CopybookCmdTest extends CopybookTest {
         String generatedSchema = readContentWithFormat(this.tmpDir.resolve("redefine.bal"));
         Assert.assertEquals(expectedSchema, generatedSchema);
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina record types generated successfully and copied to"));
+        Assert.assertTrue(output.contains("Ballerina record types are generated successfully and copied to"));
     }
 
     @Test(description = "Test copybook type generation with multiple root levels")

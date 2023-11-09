@@ -58,7 +58,7 @@ public abstract class CodeGenerator {
         String fileName = getFileName(cbFilePath.toString());
         String resolvedFileName = resolveSchemaFileName(targetOutputPath, fileName);
         writeFile(targetOutputPath.resolve(resolvedFileName), src);
-        outStream.println("Ballerina record types generated successfully and copied to :");
+        outStream.println("Ballerina record types are generated successfully and copied to :");
         outStream.println("-- " + resolvedFileName);
     }
 }
