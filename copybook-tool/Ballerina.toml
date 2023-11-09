@@ -3,6 +3,6 @@ org = "ballerina"
 name = "copybook"
 version = "0.1.0"
 authors = ["Ballerina"]
-keywords = ["copybook"]
+keywords = ["copybook", "copybook tool"]
 license = ["Apache-2.0"]
 distribution = "2201.8.0"
