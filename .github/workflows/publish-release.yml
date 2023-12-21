@@ -1,16 +1,7 @@
-name: Central Publish
+name: Publish release
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Select environment
-        required: true
-        options:
-          - CENTRAL
-          - DEV CENTRAL
-          - STAGE CENTRAL
 
 jobs:
   build:
@@ -24,6 +15,20 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+
+      - name: Get Release Version
+        run: echo "VERSION=$((grep -w 'version' | cut -d= -f2) < gradle.properties | rev | cut --complement -d- -f1 | rev)" >> $GITHUB_ENV
+
+      - name: Pre-Release Dependency Version Update
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+        run: |
+          echo "Version: ${VERSION}"
+          git checkout -b release-${VERSION}
+          sed -i 's/ballerinaLangVersion=\(.*\)-SNAPSHOT/ballerinaLangVersion=\1/g' gradle.properties
+          sed -i 's/ballerinaLangVersion=\(.*\)-[0-9]\{8\}-[0-9]\{6\}-.*$/ballerinaLangVersion=\1/g' gradle.properties
+          git add gradle.properties
+          git commit -m "Move dependencies to stable versions" || echo "No changes to commit"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -44,7 +49,6 @@ jobs:
           JAVA_HOME: /usr/lib/jvm/default-jvm
 
       - name: Ballerina Central Push
-        if: ${{ inputs.environment == 'CENTRAL' }}
         uses: ballerina-platform/ballerina-action/@2201.8.0
         with:
           args: push
@@ -57,30 +61,9 @@ jobs:
           JAVA_HOME: /usr/lib/jvm/default-jvm
           BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}
 
-      - name: Ballerina Central Stage Push
-        if: ${{ inputs.environment == 'STAGE CENTRAL' }}
-        uses: ballerina-platform/ballerina-action/@2201.8.0
-        with:
-          args: push
+      - name: GitHub Release and Release Sync PR
         env:
-          WORKING_DIR: ./copybook-tool
-          BALLERINA_DEV_CENTRAL: false
-          BALLERINA_STAGE_CENTRAL: true
-          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          JAVA_HOME: /usr/lib/jvm/default-jvm
-          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_STAGE_ACCESS_TOKEN }}
-
-      - name: Ballerina Central Dev Push
-        if: ${{ inputs.environment == 'DEV CENTRAL' }}
-        uses: ballerina-platform/ballerina-action/@2201.8.0
-        with:
-          args: push
-        env:
-          WORKING_DIR: ./copybook-tool
-          BALLERINA_DEV_CENTRAL: true
-          BALLERINA_STAGE_CENTRAL: false
-          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          JAVA_HOME: /usr/lib/jvm/default-jvm
-          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_DEV_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+        run: |
+          gh release create v$VERSION --title "copybook-tools-v$VERSION"
+          gh pr create --base main --title "[Automated] Sync main after $VERSION release" --body "Sync main after $VERSION release"
