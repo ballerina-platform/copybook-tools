@@ -18,13 +18,25 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Copybook tool package'
 
-def packageName = "copybook"
-def packageOrg = "ballerina"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/package/Ballerina.toml")
 def balToolTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/package/BalTool.toml")
 def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
 def balToolTomlFile = new File("$project.projectDir/BalTool.toml")
+
+def stripBallerinaExtensionVersion(String extVersion) {
+    if (extVersion.matches(project.ext.timestampedVersionRegex)) {
+        def splitVersion = extVersion.split('-')
+        if (splitVersion.length > 3) {
+            def strippedValues = splitVersion[0..-4]
+            return strippedValues.join('-')
+        } else {
+            return extVersion
+        }
+    } else {
+        return extVersion.replace("${project.ext.snapshotVersion}", "")
+    }
+}
 
 tasks.register('updateTomlFiles') {
     doLast {
