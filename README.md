@@ -1,6 +1,6 @@
 # copybook-tools
 
-[![Build](https://github.com/ballerina-platform/copybook-tools/actions/workflows/build-timestamped-main.yml/badge.svg)](https://github.com/ballerina-platform/copybook-tools/actions/workflows/build-timestamped-main.yml)
+[![Build](https://github.com/ballerina-platform/copybook-tools/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/copybook-tools/actions/workflows/build-timestamped-master.yml)
 [![codecov](https://codecov.io/gh/ballerina-platform/copybook-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/copybook-tools)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/copybook-tools.svg)](https://github.com/ballerina-platform/copybook-tools/commits/main)
 [![Github issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/copybook-tool.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%2Fcopybook-tool)
