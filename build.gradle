@@ -16,10 +16,17 @@
  * under the License.
 */
 
+plugins {
+    id 'com.github.spotbugs'
+    id 'de.undercouch.download'
+    id 'net.researchgate.release'
+    id 'jacoco'
+}
+
 allprojects {
-    group = 'io.ballerina'
+    group = project.group
     version = project.version
-    apply plugin: 'checkstyle'
+
     apply plugin: 'maven-publish'
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
@@ -47,44 +54,21 @@ allprojects {
     }
 }
 
-def stripBallerinaExtensionVersion(String extVersion) {
-    if (extVersion.matches(project.ext.timestampedVersionRegex)) {
-        def splitVersion = extVersion.split('-')
-        if (splitVersion.length > 3) {
-            def strippedValues = splitVersion[0..-4]
-            return strippedValues.join('-')
-        } else {
-            return extVersion
-        }
-    } else {
-        return extVersion.replace("${project.ext.snapshotVersion}", "")
-    }
+build {
+    dependsOn(":copybook-cli:build")
+    dependsOn(":copybook-tool:build")
 }
 
-tasks.register('codeCoverageReport', JacocoReport) {
-    dependsOn = subprojects.test
+def moduleVersion = project.version.replace("-SNAPSHOT", "")
 
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/coverage-reports/*.exec")
+release {
+    buildTasks = ['build']
+    failOnSnapshotDependencies = true
+    versionPropertyFile = 'gradle.properties'
+    tagTemplate = 'v${version}'
 
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-    reports {
-        xml.required = true
-        html.required = true
-        csv.required = true
-        xml.destination(new File("${buildDir}/reports/jacoco/report.xml"))
-        html.destination(new File("${buildDir}/reports/jacoco/report.html"))
-        csv.destination(new File("${buildDir}/reports/jacoco/report.csv"))
-    }
-
-    onlyIf = {
-        true
-    }
-}
-
-subprojects {
-    configurations {
-        ballerinaStdLibs
+    git {
+        requireBranch = "release-${moduleVersion}"
+        pushToRemote = 'origin'
     }
 }

@@ -20,6 +20,7 @@ plugins{
     id 'java-library'
     id 'checkstyle'
     id 'com.github.spotbugs'
+    id 'jacoco'
 }
 
 dependencies {
@@ -69,7 +70,6 @@ jacocoTestReport {
     additionalClassDirs(classFiles)
     reports {
         xml.required = true
-        html.required = true
     }
 }
 
