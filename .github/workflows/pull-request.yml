@@ -20,7 +20,7 @@ jobs:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
+          ./gradlew build --stacktrace --scan --console=plain --no-daemon
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v4
 
