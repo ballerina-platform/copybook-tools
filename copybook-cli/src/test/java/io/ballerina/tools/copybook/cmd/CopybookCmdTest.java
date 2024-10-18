@@ -112,6 +112,22 @@ public class CopybookCmdTest extends CopybookTest {
         Assert.assertTrue(output.contains("Ballerina record types are generated successfully and copied to"));
     }
 
+    @Test(description = "Test copybook command with help flag")
+    public void testCopybookTypeGenerationForImpliedDecimal() throws IOException {
+        String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/copybook-1.cpy").toString(),
+                "-o", tmpDir.toString()};
+        CopybookCmd copybookCmd = new CopybookCmd(printStream, tmpDir, false);
+        new CommandLine(copybookCmd).parseArgs(args);
+        copybookCmd.execute();
+        Path expectedSchemaFile = resourceDir.resolve(Paths.get("expectedGenTypes", "copybook-1.bal"));
+        String expectedSchema = readContentWithFormat(expectedSchemaFile);
+        Assert.assertTrue(Files.exists(this.tmpDir.resolve("copybook-1.bal")));
+        String generatedSchema = readContentWithFormat(this.tmpDir.resolve("copybook-1.bal"));
+        Assert.assertEquals(expectedSchema, generatedSchema);
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Ballerina record types are generated successfully and copied to"));
+    }
+
     @Test(description = "Test copybook type generation with multiple root levels")
     public void testTypeGenerationWithMultipleRootLevels() throws IOException {
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/hospital.cpy").toString(),

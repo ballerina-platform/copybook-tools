@@ -57,17 +57,15 @@ import static io.ballerina.tools.copybook.generator.CodeGeneratorUtils.extractTy
 public class CopybookTypeGenerator {
 
     private final Schema schema;
-    private final List<TypeDefinitionNode> fieldTypeDefinitionList;
+    private final List<TypeDefinitionNode> fieldTypeDefinitionList = new ArrayList<>();
 
     public CopybookTypeGenerator(Schema schema) {
         this.schema = schema;
-        this.fieldTypeDefinitionList = new ArrayList<>();
     }
 
     public String generateSourceCode() throws FormatterException {
         List<CopybookNode> typeDefinitions = schema.getTypeDefinitions();
-        List<TypeDefinitionNode> typeDefinitionList = new ArrayList<>();
-        typeDefinitions.forEach(typeDefinition -> typeDefinitionList.add(generateTypeDefNode(typeDefinition)));
+        List<TypeDefinitionNode> typeDefinitionList  = typeDefinitions.stream().map(this::generateTypeDefNode).toList();
         fieldTypeDefinitionList.addAll(typeDefinitionList);
         String generatedSyntaxTree = Formatter.format(generateSyntaxTree()).toString();
         return Formatter.format(generatedSyntaxTree);
@@ -84,8 +82,7 @@ public class CopybookTypeGenerator {
     public static TypeDefinitionNode generateFieldTypeDefNode(DataItem node, String extractedTypeName) {
         IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(CodeGeneratorUtils.getValidName(
                 extractTypeReferenceName(node)));
-        List<AnnotationNode> typeAnnotations = new ArrayList<>();
-        typeAnnotations.add(CodeGeneratorUtils.generateConstraintNode(node));
+        List<AnnotationNode> typeAnnotations = List.of(CodeGeneratorUtils.generateConstraintNode(node));
         MetadataNode metadataNode = createMetadataNode(null, createNodeList(typeAnnotations));
         TypeDescriptorNode typeDescriptorNode = createSimpleNameReferenceNode(createIdentifierToken(extractedTypeName));
         return createTypeDefinitionNode(metadataNode, createToken(PUBLIC_KEYWORD), createToken(TYPE_KEYWORD),
@@ -97,7 +94,7 @@ public class CopybookTypeGenerator {
         return typeGenerator.generateTypeDescriptorNode(fieldTypeDefinitionList);
     }
 
-    public SyntaxTree generateSyntaxTree() {
+    private SyntaxTree generateSyntaxTree() {
         NodeList<ImportDeclarationNode> imports = createImportDeclarationNodes();
         NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
                 fieldTypeDefinitionList.toArray(new TypeDefinitionNode[0]));
@@ -110,7 +107,7 @@ public class CopybookTypeGenerator {
 
     public static void addToFieldTypeDefinitionList(TypeDefinitionNode node, List<TypeDefinitionNode> typeDefList) {
         boolean isExist = typeDefList.stream().anyMatch(typeDefinitionNode ->
-                typeDefinitionNode.typeName().toString().equals(node.typeName().toString()));
+                typeDefinitionNode.typeName().text().equals(node.typeName().text()));
         if (!isExist) {
             typeDefList.add(node);
         }

@@ -52,11 +52,8 @@ public class ArrayTypeGenerator extends TypeGenerator {
 
     @Override
     public TypeDescriptorNode generateTypeDescriptorNode(List<TypeDefinitionNode> typeDefList) {
-        if (schemaValue instanceof GroupItem) {
-            return getGroputItemDescriptorNode(typeDefList);
-        } else {
-            return getDataItemDescriptorNode(typeDefList);
-        }
+        return schemaValue instanceof GroupItem ? getGroputItemDescriptorNode(typeDefList)
+                : getDataItemDescriptorNode(typeDefList);
     }
 
     private TypeDescriptorNode getGroputItemDescriptorNode(List<TypeDefinitionNode> typeDefList) {
@@ -68,8 +65,7 @@ public class ArrayTypeGenerator extends TypeGenerator {
                 createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
                         createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
         TypeGenerator typeGenerator = new RecordTypeGenerator((GroupItem) schemaValue);
-        TypeDescriptorNode wrappedType =
-                typeGenerator.generateTypeDescriptorNode(typeDefList);
+        TypeDescriptorNode wrappedType = typeGenerator.generateTypeDescriptorNode(typeDefList);
         return createArrayTypeDescriptorNode(wrappedType, createNodeList(arrayDimension));
     }
 
@@ -77,20 +73,14 @@ public class ArrayTypeGenerator extends TypeGenerator {
         TypeDefinitionNode fieldType = generateFieldTypeDefNode(
                 (DataItem) schemaValue, getTypeReferenceName(schemaValue, false));
         addToFieldTypeDefinitionList(fieldType, typeDefList);
-        String extractName;
-        if (schemaValue.getOccurringCount() > 0) {
-            extractName = getTypeReferenceName(schemaValue, true);
-        } else {
-            extractName = getTypeReferenceName(schemaValue, false);
-        }
+        String extractName = getTypeReferenceName(schemaValue, schemaValue.getOccurringCount() > 0);
         String typeName = CodeGeneratorUtils.getValidName(extractName);
         BasicLiteralNode length = createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
                 createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
                         String.valueOf(schemaValue.getOccurringCount()),
                         createEmptyMinutiaeList(), createEmptyMinutiaeList()));
-        ArrayDimensionNode arrayDimension =
-                createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
-                        createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
+        ArrayDimensionNode arrayDimension = createArrayDimensionNode(createToken(SyntaxKind.OPEN_BRACKET_TOKEN), length,
+                createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
         TypeDescriptorNode wrappedType = createSimpleNameReferenceNode(createIdentifierToken(typeName));
         return createArrayTypeDescriptorNode(wrappedType, createNodeList(arrayDimension));
     }

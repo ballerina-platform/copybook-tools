@@ -34,7 +34,7 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createSimpleNameReferenceNode;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.AT_TOKEN;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.MAPPING_CONSTRUCTOR;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_PIC;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_SIGN;
 
 public class AnnotationGenerator {
 
@@ -91,17 +91,22 @@ public class AnnotationGenerator {
 
     private static List<String> getNumberAnnotFields(DataItem node) {
         List<String> fields = new ArrayList<>();
-        int maxIntegerDigits = 1;
+        int maxIntegerDigits;
         if (node.isSinged()) {
             maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 1;
-        } else if (node.getPicture().startsWith(NEGATIVE_DECIMAL_PIC) ||
-                node.getPicture().startsWith(GeneratorConstants.POSITIVE_DECIMAL_PIC)) {
+        } else if (node.getPicture().startsWith(NEGATIVE_SIGN) ||
+                node.getPicture().startsWith(GeneratorConstants.POSITIVE_SIGN)) {
             maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 2;
         } else {
             int minValue = 0;
             String fieldRef = GeneratorConstants.MIN_VALUE + GeneratorConstants.COLON + minValue;
             fields.add(fieldRef);
             maxIntegerDigits = node.getReadLength() - node.getFloatingPointLength() - 1;
+        }
+        if (CodeGeneratorUtils.hasImpliedDecimal(node)) {
+            // The implied decimal point doesn't include a decimal separator,
+            // so add +1 to account for the extra digit removed from the integer part in previous cases.
+            maxIntegerDigits += 1;
         }
         int maxFractionDigits = node.getFloatingPointLength();
         String fieldRef = GeneratorConstants.MAX_INTEGER_DIGITS + GeneratorConstants.COLON + maxIntegerDigits;

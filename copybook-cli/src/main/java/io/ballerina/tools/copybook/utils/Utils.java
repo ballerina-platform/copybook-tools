@@ -39,10 +39,7 @@ public class Utils {
 
     public static boolean createOutputDirectory(Path outputPath) {
         File outputDir = new File(outputPath.toString());
-        if (!outputDir.exists()) {
-            return outputDir.mkdirs();
-        }
-        return true;
+        return outputDir.exists() || outputDir.mkdirs();
     }
 
     public static void writeFile(Path filePath, String content) throws CopybookTypeGenerationException {
