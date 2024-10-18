@@ -96,7 +96,7 @@ public class CopybookCmdTest extends CopybookTest {
         assertStringsWithoutWhiteSpace(output, message);
     }
 
-    @Test(description = "Test copybook command with help flag")
+    @Test(description = "Test copybook tool type generation")
     public void testCopybookTypeGeneration() throws IOException {
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/copybook.cob").toString(),
                 "-o", tmpDir.toString()};
@@ -112,7 +112,7 @@ public class CopybookCmdTest extends CopybookTest {
         Assert.assertTrue(output.contains("Ballerina record types are generated successfully and copied to"));
     }
 
-    @Test(description = "Test copybook command with help flag")
+    @Test(description = "Test copybook tool type generation for implied decimal picture clause")
     public void testCopybookTypeGenerationForImpliedDecimal() throws IOException {
         String[] args = {"-i", resourceDir.resolve("copybookDefinitions/valid/copybook-1.cpy").toString(),
                 "-o", tmpDir.toString()};
