@@ -2,10 +2,10 @@
 id = "copybook"
 
 [[dependency]]
-path = "build/libs/copybook-cli-0.1.2-SNAPSHOT.jar"
+path = "build/libs/copybook-cli-1.0.0-SNAPSHOT.jar"
 
 [[dependency]]
 path = "build/libs/antlr4-runtime-4.13.1.jar"
 
 [[dependency]]
-path = "build/libs/copybook-commons-0.2.0.jar"
+path = "build/libs/copybook-commons-1.0.2.jar"

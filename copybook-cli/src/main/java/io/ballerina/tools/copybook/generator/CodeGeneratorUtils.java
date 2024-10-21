@@ -34,35 +34,34 @@ import io.ballerina.lib.copybook.commons.schema.DataItem;
 import io.ballerina.lib.copybook.commons.schema.GroupItem;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static io.ballerina.tools.copybook.generator.AnnotationGenerator.generateIntConstraint;
 import static io.ballerina.tools.copybook.generator.AnnotationGenerator.generateNumberConstraint;
 import static io.ballerina.tools.copybook.generator.AnnotationGenerator.generateStringConstraint;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ALPHA_NUMERIC_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.ARRAY_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.BALLERINA;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.BAL_EXTENSION;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.BAL_KEYWORDS;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.BYTE_ARRAY;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.COMP_PIC;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.CONSTRAINT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL_TYPE;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.ESCAPE_PATTERN;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.DECIMAL_POINT;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.ERROR;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.ESCAPE_PATTERN;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.IMPORT;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.INT;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.INTEGER_IN_BINARY_TYPE;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.UNSIGNED_INTEGER_TYPE;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_DECIMAL_PIC;
-import static io.ballerina.tools.copybook.generator.GeneratorConstants.POSITIVE_DECIMAL_PIC;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.NEGATIVE_SIGN;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.POSITIVE_SIGN;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SEMICOLON;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_DECIMAL_TYPE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SIGNED_INTEGER_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.SINGLE_QUOTE;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.SLASH;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.SPECIAL_CHAR_REGEX;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.STRING;
 import static io.ballerina.tools.copybook.generator.GeneratorConstants.UNSIGNED_DECIMAL_TYPE;
+import static io.ballerina.tools.copybook.generator.GeneratorConstants.UNSIGNED_INTEGER_TYPE;
 
 public class CodeGeneratorUtils {
 
@@ -74,7 +73,8 @@ public class CodeGeneratorUtils {
     public static TypeGenerator getTypeGenerator(CopybookNode schemaValue) {
         if (schemaValue.getOccurringCount() > 0) {
             return new ArrayTypeGenerator(schemaValue);
-        } else if (schemaValue instanceof DataItem dataItem) {
+        }
+        if (schemaValue instanceof DataItem dataItem) {
             return new ReferencedTypeGenerator(dataItem);
         }
         return new RecordTypeGenerator((GroupItem) schemaValue);
@@ -86,12 +86,7 @@ public class CodeGeneratorUtils {
                 return extractTypeReferenceName(dataItem);
             }
             if (dataItem.isNumeric()) {
-                if (dataItem.getFloatingPointLength() > 0) {
-                    return DECIMAL;
-                }
-                return INT;
-            } else if (dataItem.getPicture().contains(COMP_PIC)) {
-                return BYTE_ARRAY;
+                return dataItem.getFloatingPointLength() > 0 ? DECIMAL : INT;
             }
             return STRING;
         }
@@ -99,25 +94,19 @@ public class CodeGeneratorUtils {
     }
 
     public static ImportDeclarationNode getImportDeclarationNode(String orgName, String moduleName) {
-        Token importKeyword = AbstractNodeFactory.createIdentifierToken(IMPORT, SINGLE_WS_MINUTIAE,
-                SINGLE_WS_MINUTIAE);
+        Token importKeyword = AbstractNodeFactory.createIdentifierToken(IMPORT, SINGLE_WS_MINUTIAE, SINGLE_WS_MINUTIAE);
         Token orgNameToken = AbstractNodeFactory.createIdentifierToken(orgName);
         Token slashToken = AbstractNodeFactory.createIdentifierToken(SLASH);
         ImportOrgNameNode importOrgNameNode = NodeFactory.createImportOrgNameNode(orgNameToken, slashToken);
         Token moduleNameToken = AbstractNodeFactory.createIdentifierToken(moduleName);
-        SeparatedNodeList<IdentifierToken> moduleNodeList = AbstractNodeFactory.createSeparatedNodeList(
-                moduleNameToken);
+        SeparatedNodeList<IdentifierToken> moduleNodes = AbstractNodeFactory.createSeparatedNodeList(moduleNameToken);
         Token semicolon = AbstractNodeFactory.createIdentifierToken(SEMICOLON);
-        return NodeFactory.createImportDeclarationNode(importKeyword, importOrgNameNode,
-                moduleNodeList, null, semicolon);
+        return NodeFactory.createImportDeclarationNode(importKeyword, importOrgNameNode, moduleNodes, null, semicolon);
     }
 
     public static NodeList<ImportDeclarationNode> createImportDeclarationNodes() {
-        List<ImportDeclarationNode> imports = new ArrayList<>();
-        ImportDeclarationNode importForHttp = CodeGeneratorUtils.getImportDeclarationNode(GeneratorConstants.BALLERINA,
-                GeneratorConstants.CONSTRAINT);
-        imports.add(importForHttp);
-        return AbstractNodeFactory.createNodeList(imports);
+        ImportDeclarationNode importForHttp = CodeGeneratorUtils.getImportDeclarationNode(BALLERINA, CONSTRAINT);
+        return AbstractNodeFactory.createNodeList(List.of(importForHttp));
     }
 
     private static MinutiaeList getSingleWSMinutiae() {
@@ -127,62 +116,49 @@ public class CodeGeneratorUtils {
 
     public static AnnotationNode generateConstraintNode(DataItem dataItem) {
         String ballerinaType = getConstraintType(dataItem);
-        if (ballerinaType.equals(DECIMAL)) {
-            return generateNumberConstraint(dataItem);
-        } else if (ballerinaType.equals(INT)) {
-            return generateIntConstraint(dataItem);
-        }
-        return generateStringConstraint(dataItem);
+        return switch (ballerinaType) {
+            case DECIMAL -> generateNumberConstraint(dataItem);
+            case INT -> generateIntConstraint(dataItem);
+            default -> generateStringConstraint(dataItem);
+        };
     }
 
     private static String getConstraintType(DataItem dataItem) {
         if (dataItem.isNumeric() && dataItem.getFloatingPointLength() > 0) {
             return DECIMAL;
-        } else if (dataItem.isNumeric()) {
-            return INT;
         }
-        return STRING;
+        return dataItem.isNumeric() ? INT : STRING;
     }
 
     public static String extractTypeReferenceName(DataItem dataItem) {
-        String typeName = null;
+        String typeName;
         if (dataItem.isNumeric()) {
             if (dataItem.getFloatingPointLength() > 0) {
-                if (dataItem.isSinged()) {
-                    typeName = SIGNED_DECIMAL_TYPE + (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
-                            + DECIMAL_POINT + dataItem.getFloatingPointLength();
-                } else if (dataItem.getPicture().startsWith(NEGATIVE_DECIMAL_PIC) ||
-                        dataItem.getPicture().startsWith(POSITIVE_DECIMAL_PIC)) {
-                    typeName = DECIMAL_TYPE +
-                            (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 2)
-                            + DECIMAL_POINT + dataItem.getFloatingPointLength();
-                } else {
-                    typeName = UNSIGNED_DECIMAL_TYPE +
-                            (dataItem.getReadLength() - dataItem.getFloatingPointLength() - 1) +
-                            DECIMAL_POINT + dataItem.getFloatingPointLength();
+                int wholeNumberLength = dataItem.getReadLength() - dataItem.getFloatingPointLength();
+                if (!hasImpliedDecimal(dataItem)) {
+                    wholeNumberLength -= 1;
                 }
+                if (dataItem.getPicture().startsWith(NEGATIVE_SIGN)
+                        || dataItem.getPicture().startsWith(POSITIVE_SIGN)) {
+                    wholeNumberLength -= 1;
+                }
+                boolean isSignedDecimal = dataItem.isSinged() || dataItem.getPicture().startsWith(NEGATIVE_SIGN) ||
+                        dataItem.getPicture().startsWith(POSITIVE_SIGN);
+                typeName = isSignedDecimal ? SIGNED_DECIMAL_TYPE : UNSIGNED_DECIMAL_TYPE;
+                typeName += wholeNumberLength + DECIMAL_POINT + dataItem.getFloatingPointLength();
             } else {
-                if (dataItem.isSinged()) {
-                    typeName = SIGNED_INTEGER_TYPE + dataItem.getReadLength();
-                } else {
-                    typeName = UNSIGNED_INTEGER_TYPE + dataItem.getReadLength();
-                }
+                typeName = dataItem.isSinged() ? SIGNED_INTEGER_TYPE : UNSIGNED_INTEGER_TYPE;
+                typeName += dataItem.getReadLength();
             }
-        } else if (dataItem.getPicture().contains(COMP_PIC)) {
-            // TODO: implement the binary values handling part
-            typeName = INTEGER_IN_BINARY_TYPE;
         } else {
             typeName = ALPHA_NUMERIC_TYPE + dataItem.getReadLength();
         }
-        if (dataItem.getOccurringCount() > 0) {
-            typeName = typeName + ARRAY_TYPE;
-        }
-        return typeName;
+        return dataItem.getOccurringCount() > 0 ? typeName + ARRAY_TYPE : typeName;
     }
 
     public static String getValidName(String identifier) {
         if (!identifier.matches("\\b[0-9]*\\b")) {
-            String[] split = identifier.split(GeneratorConstants.SPECIAL_CHAR_REGEX);
+            String[] split = identifier.split(SPECIAL_CHAR_REGEX);
             StringBuilder validName = new StringBuilder();
             for (String part : split) {
                 if (!part.isBlank()) {
@@ -196,28 +172,22 @@ public class CodeGeneratorUtils {
 
     public static String escapeIdentifier(String identifier) {
         if (identifier.matches("\\b[0-9]*\\b")) {
-            return "'" + identifier;
-        } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")
-                || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
-            if (identifier.equals("error")) {
-                identifier = "_error";
-            } else {
-                identifier = identifier.replaceAll(ESCAPE_PATTERN, "\\\\$1");
-                if (identifier.endsWith("?")) {
-                    if (identifier.charAt(identifier.length() - 2) == '\\') {
-                        StringBuilder stringBuilder = new StringBuilder(identifier);
-                        stringBuilder.deleteCharAt(identifier.length() - 2);
-                        identifier = stringBuilder.toString();
-                    }
-                    if (BAL_KEYWORDS.stream().anyMatch(Optional.ofNullable(identifier)
-                            .filter(sStr -> sStr.length() != 0)
-                            .map(sStr -> sStr.substring(0, sStr.length() - 1))
-                            .orElse(identifier)::equals)) {
-                        identifier = "'" + identifier;
-                    } else {
-                        return identifier;
-                    }
+            return SINGLE_QUOTE + identifier;
+        }
+        boolean isValidIdentifier = identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b");
+        boolean isKeyword = BAL_KEYWORDS.contains(identifier);
+        if (!isValidIdentifier || isKeyword) {
+            if (ERROR.equals(identifier)) {
+                return '_' + ERROR;
+            }
+            identifier = identifier.replaceAll(ESCAPE_PATTERN, "\\\\$1");
+            if (identifier.endsWith("?")) {
+                int length = identifier.length();
+                if (length > 1 && identifier.charAt(length - 2) == '\\') {
+                    identifier = identifier.substring(0, length - 2) + "?";
                 }
+                String strippedIdentifier = identifier.substring(0, length - 1);
+                return BAL_KEYWORDS.contains(strippedIdentifier) ? SINGLE_QUOTE + identifier : identifier;
             }
         }
         return identifier;
@@ -229,4 +199,7 @@ public class CodeGeneratorUtils {
         return String.join("", fileName, BAL_EXTENSION);
     }
 
+    public static boolean hasImpliedDecimal(DataItem dataItem) {
+        return dataItem.getPicture().contains(DECIMAL_POINT);
+    }
 }

@@ -52,26 +52,24 @@ public class GeneratorConstants {
     public static final String IMPORT = "import";
     public static final String SEMICOLON = ";";
     public static final String PERIOD = ".";
+    public static final String SINGLE_QUOTE = "'";
 
     // Copybook types
     public static final String SIGNED_DECIMAL_TYPE = "SignedDecimal";
     public static final String UNSIGNED_DECIMAL_TYPE = "UnsignedDecimal";
-    public static final String DECIMAL_TYPE = "Decimal";
     public static final String SIGNED_INTEGER_TYPE = "SignedInteger";
     public static final String UNSIGNED_INTEGER_TYPE = "UnsignedInteger";
     public static final String ALPHA_NUMERIC_TYPE = "AlphaNumeric";
-    public static final String INTEGER_IN_BINARY_TYPE = "IntegerInBinary";
     public static final String ARRAY_TYPE = "Array";
     public static final String DECIMAL_POINT = "V";
-    public static final String NEGATIVE_DECIMAL_PIC = "-9";
-    public static final String POSITIVE_DECIMAL_PIC = "+9";
-    public static final String COMP_PIC = "COMP";
+    public static final String NEGATIVE_SIGN = "-";
+    public static final String POSITIVE_SIGN = "+";
 
     // Ballerina types
     public static final String STRING = "string";
     public static final String INT = "int";
     public static final String DECIMAL = "decimal";
-    public static final String BYTE_ARRAY = "byte[]";
+    public static final String ERROR = "error";
 
     // File extensions
     public static final String COPYBOOK_EXTENSION = ".cpy";
