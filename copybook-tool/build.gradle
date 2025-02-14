@@ -18,6 +18,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Copybook tool package'
 
+def packageOrg = "ballerina"
+def packageName = "copybook"
+def platform = "java21"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/package/Ballerina.toml")
 def balToolTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/package/BalTool.toml")
@@ -26,6 +29,7 @@ def balToolTomlFile = new File("$project.projectDir/BalTool.toml")
 def needPublishToCentral = false
 def needPublishToLocalCentral = false
 def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN')
+def distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.ballerinaLangVersion}/bin"
 
 def stripBallerinaExtensionVersion(String extVersion) {
     if (extVersion.matches(project.ext.timestampedVersionRegex)) {
@@ -77,47 +81,35 @@ tasks.register('commitTomlFiles') {
 }
 
 tasks.register("publishToCentral") {
-    if (needPublishToCentral) {
-        if (project.version.endsWith('-SNAPSHOT') ||
-                project.version.matches(project.ext.timestampedVersionRegex)) {
-            println("[Info] skipping publishing to central: project version is SNAPSHOT or Timestamped SNAPSHOT")
-            return
-        }
-        if (ballerinaCentralAccessToken != null) {
+    doLast {
+        if (needPublishToCentral) {
+            if (project.version.endsWith('-SNAPSHOT') ||
+                    project.version.matches(project.ext.timestampedVersionRegex)) {
+                println("[Info] skipping publishing to central: project version is SNAPSHOT or Timestamped SNAPSHOT")
+                return
+            }
+            if (ballerinaCentralAccessToken != null) {
+                project.exec {
+                    workingDir project.projectDir
+                    environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
+                    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                        commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala && exit %%ERRORLEVEL%%"
+                    } else {
+                        commandLine 'sh', '-c', "$distributionBinPath/bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala"
+                    }
+                }
+            } else {
+                throw new InvalidUserDataException('Central Access Token is not present')
+            }
+        } else if (needPublishToLocalCentral) {
+            println("[Info] Publishing to the ballerina local central repository")
             project.exec {
                 workingDir project.projectDir
                 environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
-                if (ballerinaExtension.isConnector) {
-                    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        commandLine 'cmd', '/c', "bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala && exit %%ERRORLEVEL%%"
-                    } else {
-                        commandLine 'sh', '-c', "bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala"
-                    }
-                } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                    commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala && exit %%ERRORLEVEL%%"
-                } else {
-                    commandLine 'sh', '-c', "$distributionBinPath/bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala"
-                }
-            }
-        } else {
-            throw new InvalidUserDataException('Central Access Token is not present')
-        }
-    } else if (needPublishToLocalCentral) {
-        println("[Info] Publishing to the ballerina local central repository")
-        project.exec {
-            workingDir project.projectDir
-            environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
-            if (ballerinaExtension.isConnector) {
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                    commandLine 'cmd', '/c', "bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala --repository=local && exit %%ERRORLEVEL%%"
+                    commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala --repository=local && exit %%ERRORLEVEL%%"
                 } else {
-                    commandLine 'sh', '-c', "bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala --repository=local"
-                }
-            } else {
-                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                    commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala --repository=local && exit %%ERRORLEVEL%%"
-                } else {
-                    commandLine 'sh', '-c', "$distributionBinPath/bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${balaVersion}.bala --repository=local"
+                    commandLine 'sh', '-c', "$distributionBinPath/bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala --repository=local"
                 }
             }
         }
@@ -127,4 +119,5 @@ tasks.register("publishToCentral") {
 commitTomlFiles.dependsOn updateTomlFiles
 build.dependsOn commitTomlFiles
 build.dependsOn "initializeVariables"
-publish.dependsOn "publishToCentral"
+publishToMavenLocal.dependsOn build
+publish.dependsOn build

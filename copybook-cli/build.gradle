@@ -126,4 +126,4 @@ compileJava {
 }
 
 copyAllDependencies.dependsOn copyJar
-build.dependsOn(copyAllDependencies)
+build.dependsOn copyAllDependencies
