@@ -21,10 +21,11 @@ jobs:
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew build --stacktrace --scan --console=plain --no-daemon
-      - name: Generate Codecov Report
-        uses: codecov/codecov-action@v4
+      - name: Generate CodeCov Report
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ballerina-platform/copybook-tools
 
   windows-build:
 
