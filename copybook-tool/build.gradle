@@ -116,6 +116,42 @@ tasks.register("publishToCentral") {
     }
 }
 
+project.tasks.register('unpackJballerinaTools') {
+    doLast {
+        project.configurations.jbalTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+            project.copy {
+                from project.zipTree(artifact.getFile())
+                into new File("${project.buildDir}/")
+            }
+
+            project.copy {
+                from(project.zipTree(artifact.getFile())) {
+                    eachFile { fcd ->
+                        fcd.relativePath = new RelativePath(!fcd.file.isDirectory(), fcd.relativePath.segments.drop(1))
+                    }
+                    includeEmptyDirs = false
+                }
+                into "${project.rootDir}/target/ballerina-runtime"
+            }
+        }
+    }
+}
+
+build {
+    doLast {
+        project.exec {
+            workingDir project.projectDir
+            environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "$distributionBinPath/bal.bat pack && exit %%ERRORLEVEL%%"
+            } else {
+                commandLine 'sh', '-c', "$distributionBinPath/bal pack"
+            }
+        }
+    }
+}
+
+updateTomlFiles.dependsOn "unpackJballerinaTools"
 commitTomlFiles.dependsOn updateTomlFiles
 build.dependsOn commitTomlFiles
 build.dependsOn "initializeVariables"

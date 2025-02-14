@@ -5,12 +5,12 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.8.0"
+distribution-version = "2201.11.0"
 
 [[package]]
 org = "ballerina"
 name = "copybook"
-version = "1.0.0"
+version = "1.1.0"
 modules = [
 	{org = "ballerina", packageName = "copybook", moduleName = "copybook"}
 ]
