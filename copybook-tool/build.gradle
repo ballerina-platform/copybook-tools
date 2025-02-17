@@ -60,9 +60,8 @@ task updateTomlFiles {
         ballerinaTomlFile.text = newBallerinaToml
 
         def newBalToolTomlFile = balToolTomlFilePlaceHolder.text.replace("@project.version@", project.version)
-        newBalToolTomlFile = newBalToolTomlFile.replace("@antlrVersion@", project.antlrVersion)
-        newBalToolTomlFile = newBalToolTomlFile.replace("@antlrToolVersion@", project.antlrToolVersion)
-
+        newBalToolTomlFile = newBalToolTomlFile.replace("@antlrVersion@", antlrVersion)
+        newBalToolTomlFile = newBalToolTomlFile.replace("@copybookParserVersion@", copybookParserVersion)
         balToolTomlFile.text = newBalToolTomlFile
     }
 }
