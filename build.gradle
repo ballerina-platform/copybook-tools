@@ -28,8 +28,6 @@ allprojects {
     version = project.version
 
     apply plugin: 'maven-publish'
-    apply plugin: 'java-library'
-    apply plugin: 'jacoco'
 
     repositories {
         mavenLocal()
@@ -56,6 +54,7 @@ allprojects {
 
 subprojects {
     configurations {
+        ballerinaStdLibs
         jbalTools
     }
 
@@ -67,7 +66,7 @@ subprojects {
     }
 }
 
-build {
+tasks.register('build') {
     dependsOn(":copybook-cli:build")
     dependsOn(":copybook-tool:build")
 }
@@ -79,7 +78,6 @@ release {
     failOnSnapshotDependencies = true
     versionPropertyFile = 'gradle.properties'
     tagTemplate = 'v${version}'
-
     git {
         requireBranch = "release-${moduleVersion}"
         pushToRemote = 'origin'

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  *
  */
+
 import org.apache.tools.ant.taskdefs.condition.Os
 
-description = 'Ballerina - Copybook tool package'
+plugins {
+    id 'io.ballerina.plugin'
+}
 
-def packageOrg = "ballerina"
+description = 'Ballerina - Copybook Tool'
+
 def packageName = "copybook"
-def platform = "java21"
+def packageOrg = "ballerina"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
-def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/package/Ballerina.toml")
-def balToolTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/package/BalTool.toml")
+def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/Ballerina.toml")
+def balToolTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/BalTool.toml")
 def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
 def balToolTomlFile = new File("$project.projectDir/BalTool.toml")
-def needPublishToCentral = false
-def needPublishToLocalCentral = false
-def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN')
-def distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.ballerinaLangVersion}/bin"
 
 def stripBallerinaExtensionVersion(String extVersion) {
     if (extVersion.matches(project.ext.timestampedVersionRegex)) {
@@ -45,115 +45,62 @@ def stripBallerinaExtensionVersion(String extVersion) {
     }
 }
 
-tasks.register("initializeVariables") {
-    if (project.hasProperty('publishToLocalCentral') && (project.findProperty('publishToLocalCentral') == 'true')) {
-        needPublishToLocalCentral = true
-    }
-    if (project.hasProperty('publishToCentral') && (project.findProperty('publishToCentral') == 'true')) {
-        needPublishToCentral = true
-    }
+ballerina {
+    packageOrganization = packageOrg
+    module = packageName
+    langVersion = ballerinaLangVersion
 }
 
-tasks.register('updateTomlFiles') {
+task updateTomlFiles {
     doLast {
-        def newConfig = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
-        newConfig = newConfig.replace("@toml.version@", tomlVersion)
-        ballerinaTomlFile.text = newConfig
+        def newBallerinaToml = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
+        newBallerinaToml = newBallerinaToml.replace("@toml.version@", tomlVersion)
+        ballerinaTomlFile.text = newBallerinaToml
 
-        def newToolConfig = balToolTomlFilePlaceHolder.text.replace("@project.version@", version)
-        newToolConfig = newToolConfig.replace("@toml.antlrVersion@", antlrVersion)
-        newToolConfig = newToolConfig.replace("@toml.copybookParserVersion@", copybookParserVersion)
-        balToolTomlFile.text = newToolConfig
+        def newBalToolTomlFile = balToolTomlFilePlaceHolder.text.replace("@project.version@", project.version)
+        newBalToolTomlFile = newBalToolTomlFile.replace("@antlrVersion@", project.antlrVersion)
+        newBalToolTomlFile = newBalToolTomlFile.replace("@antlrToolVersion@", project.antlrToolVersion)
+
+        balToolTomlFile.text = newBalToolTomlFile
     }
 }
 
-tasks.register('commitTomlFiles') {
+task commitTomlFiles {
     doLast {
         project.exec {
             ignoreExitValue true
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "git commit -m \"[Automated] Update the native jar versions\" Ballerina.toml Dependencies.toml"
+                commandLine 'cmd', '/c', "git commit -m \"[Automated] Update the native jar versions\" Ballerina.toml Dependencies.toml BalTool.toml"
             } else {
-                commandLine 'sh', '-c', "git commit -m '[Automated] Update the native jar versions' Ballerina.toml Dependencies.toml"
+                commandLine 'sh', '-c', "git commit -m '[Automated] Update the native jar versions' Ballerina.toml Dependencies.toml BalTool.toml"
             }
         }
     }
 }
 
-tasks.register("publishToCentral") {
-    doLast {
-        if (needPublishToCentral) {
-            if (project.version.endsWith('-SNAPSHOT') ||
-                    project.version.matches(project.ext.timestampedVersionRegex)) {
-                println("[Info] skipping publishing to central: project version is SNAPSHOT or Timestamped SNAPSHOT")
-                return
-            }
-            if (ballerinaCentralAccessToken != null) {
-                project.exec {
-                    workingDir project.projectDir
-                    environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
-                    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala && exit %%ERRORLEVEL%%"
-                    } else {
-                        commandLine 'sh', '-c', "$distributionBinPath/bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala"
-                    }
-                }
-            } else {
-                throw new InvalidUserDataException('Central Access Token is not present')
-            }
-        } else if (needPublishToLocalCentral) {
-            println("[Info] Publishing to the ballerina local central repository")
-            project.exec {
-                workingDir project.projectDir
-                environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
-                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                    commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala --repository=local && exit %%ERRORLEVEL%%"
-                } else {
-                    commandLine 'sh', '-c', "$distributionBinPath/bal push ${balBuildTarget}/bala/${packageOrg}-${packageName}-${platform}-${tomlVersion}.bala --repository=local"
-                }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact source: createArtifactZip, extension: 'zip'
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/copybook-tool")
+            credentials {
+                username = System.getenv("publishUser")
+                password = System.getenv("publishPAT")
             }
         }
     }
 }
 
-project.tasks.register('unpackJballerinaTools') {
-    doLast {
-        project.configurations.jbalTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            project.copy {
-                from project.zipTree(artifact.getFile())
-                into new File("${project.buildDir}/")
-            }
+updateTomlFiles.dependsOn copyStdlibs
 
-            project.copy {
-                from(project.zipTree(artifact.getFile())) {
-                    eachFile { fcd ->
-                        fcd.relativePath = new RelativePath(!fcd.file.isDirectory(), fcd.relativePath.segments.drop(1))
-                    }
-                    includeEmptyDirs = false
-                }
-                into "${project.rootDir}/target/ballerina-runtime"
-            }
-        }
-    }
-}
+build.dependsOn "generatePomFileForMavenPublication"
+build.dependsOn ":copybook-cli:build"
+test.dependsOn ":copybook-cli:build"
 
-build {
-    doLast {
-        project.exec {
-            workingDir project.projectDir
-            environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/bal.bat pack && exit %%ERRORLEVEL%%"
-            } else {
-                commandLine 'sh', '-c', "$distributionBinPath/bal pack"
-            }
-        }
-    }
-}
-
-updateTomlFiles.dependsOn "unpackJballerinaTools"
-commitTomlFiles.dependsOn updateTomlFiles
-build.dependsOn commitTomlFiles
-build.dependsOn "initializeVariables"
 publishToMavenLocal.dependsOn build
 publish.dependsOn build
