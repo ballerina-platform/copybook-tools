@@ -5,7 +5,7 @@ id = "copybook"
 path = "build/libs/copybook-cli-1.1.0-SNAPSHOT.jar"
 
 [[dependency]]
-path = "build/libs/antlr4-runtime-@antlrVersion@.jar"
+path = "build/libs/antlr4-runtime-4.13.1.jar"
 
 [[dependency]]
-path = "build/libs/copybook-commons-@copybookParserVersion@.jar"
+path = "build/libs/copybook-commons-1.1.0.jar"
