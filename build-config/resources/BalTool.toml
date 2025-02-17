@@ -1,0 +1,11 @@
+[tool]
+id = "copybook"
+
+[[dependency]]
+path = "build/libs/copybook-cli-@project.version@.jar"
+
+[[dependency]]
+path = "build/libs/antlr4-runtime-@antlrVersion@.jar"
+
+[[dependency]]
+path = "build/libs/copybook-commons-@copybookParserVersion@.jar"
