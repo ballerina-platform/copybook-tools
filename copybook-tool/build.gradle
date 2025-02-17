@@ -98,7 +98,6 @@ publishing {
 }
 
 updateTomlFiles.dependsOn copyStdlibs
-
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":copybook-cli:build"
 test.dependsOn ":copybook-cli:build"
