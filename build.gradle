@@ -66,9 +66,18 @@ subprojects {
     }
 }
 
-tasks.register('build') {
-    dependsOn(":copybook-cli:build")
-    dependsOn(":copybook-tool:build")
+if (tasks.names.contains('build')) {
+    tasks.named('build') {
+        dependsOn(":copybook-cli:build")
+        dependsOn(":copybook-tool:build")
+
+    }
+} else {
+    tasks.register('build') {
+        dependsOn(":copybook-cli:build")
+        dependsOn(":copybook-tool:build")
+
+    }
 }
 
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
